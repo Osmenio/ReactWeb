@@ -1,0 +1,54 @@
+@import './theme';
+
+// Modal
+.dark-mode {
+  .ui.modal {
+    .header {
+      background-color: map-get($dark-mode, primary);
+      color: map-get($dark-mode, text);
+    }
+
+    .content,
+    .actions {
+      background-color: map-get($dark-mode, text);
+      color: map-get($dark-mode, background);
+    }
+  }
+}
+
+// Input
+.dark-mode {
+  .ui.input {
+    & > input {
+      background-color: map-get($dark-mode, text);
+      color: map-get($dark-mode, background);
+
+      &::placeholder {
+        color: map-get($dark-mode, secondary);
+      }
+    }
+  }
+}
+
+// Checkbox
+.light-mode {
+  .ui.checkbox {
+    & > input {
+      accent-color: map-get($dark-mode, secondary);
+    }
+  }
+}
+
+// Dropdown
+.dark-mode {
+  .ui.menu {
+    .ui.dropdown.item {
+      .menu {
+        background-color: map-get($dark-mode, text) !important;
+        & > .item {
+          color: map-get($dark-mode, background) !important;
+        }
+      }
+    }
+  }
+}

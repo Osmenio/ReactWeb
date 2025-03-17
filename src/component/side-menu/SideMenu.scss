@@ -1,0 +1,144 @@
+@import '../../theme';
+
+.menu-toggle {
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  padding: 10px;
+  margin-right: 10px;
+  border: none;
+  font-size: 20px;
+  min-width: 40px;
+
+  .toggle-bar {
+    height: 3px;
+    margin-bottom: 5px;
+  }
+}
+
+.side-menu-container {
+  z-index: 1;
+  display: flex;
+  // background-color: bisque;
+  max-width: 1024px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.side-menu {
+  // z-index: 10000;
+  display: flex;
+  margin: 0 auto;
+
+  // align-items: center;
+  // padding: 10px 20px;
+
+  // width: 250px;
+  position: fixed;
+  top: 80px;
+  height: 0;
+  // left: -250px;
+  // left: 0;
+  // transition: left 0.3s ease;
+  transition: height 0.3s ease, left 0.3s ease;
+  background-color: white;
+  box-shadow: $pt-elevation-shadow-3;
+  overflow: hidden;
+
+  &>.logo-container {
+    padding: 20px;
+    float: left;
+    background-color: antiquewhite;
+
+    &>img {
+      width: 35px;
+      height: 35px;
+      border-radius: 5px;
+    }
+  }
+
+  &.open {
+    // left: 250px;
+    height: 100vh;
+    // left: 250px;
+  }
+
+  .menu-toggle-container {
+    padding: 10px;
+    background-color: chartreuse;
+
+    .menu-toggle {
+      float: right;
+      margin: 0;
+    }
+  }
+
+  .menu-items {
+    width: 250px;
+    padding: 0;
+    // padding: 10px;
+    margin: 0px 0;
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        a {
+          color: inherit;
+          text-decoration: none;
+          display: block;
+          padding: 15px 30px;
+          font-weight: bold;
+          transition: background-color 0.3s ease;
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+          }
+
+          span {
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+.light-mode {
+  .menu-toggle {
+    .toggle-bar {
+      background-color: map-get($light-mode, secondary);
+    }
+  }
+
+  .side-menu {
+    background-color: map-get($light-mode, background);
+    color: map-get($light-mode, text);
+    box-shadow: 6px 0 8px -4px map-get($light-mode, shadow);
+
+    .menu-items ul li a {
+      color: map-get($light-mode, text);
+    }
+  }
+}
+
+.dark-mode {
+  .menu-toggle {
+    .toggle-bar {
+      background-color: map-get($dark-mode, secondary);
+    }
+  }
+
+  .side-menu {
+    background-color: map-get($dark-mode, background);
+    color: map-get($dark-mode, text);
+    box-shadow: 6px 0 8px -4px map-get($dark-mode, shadow);
+
+    .menu-items ul li a {
+      color: map-get($dark-mode, text);
+    }
+  }
+}

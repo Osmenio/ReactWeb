@@ -1,0 +1,14 @@
+@import '../../theme.scss';
+
+.container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.title {
+  font-weight: bold;
+  font-size: 24px;
+  margin: 0 10px;
+}
