@@ -26,11 +26,27 @@
 //   font-weight: bold;
 // }
 
+.header_margin {
+  margin-top: 40px;
+}
+
+.footer_content {
+  display: flex;
+  justify-content: space-between;
+  // text-align: right;
+  // align-items: right;
+}
+
 .footer_buttons {
   display: flex;
   justify-content: end;
-  // text-align: right;
-  // align-items: right;
+  align-items: center;
+}
+
+.button_size_small {
+  // width: 170px;
+  margin: 10px !important;
+  // padding: 10px 20px!important;
 }
 
 .button_size {
