@@ -1,28 +1,58 @@
-import React, { useCallback, useRef, useState } from 'react';
-import { Button, Dropdown, DropdownItemProps, Input, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
+import { Dropdown, Input, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
 import './SalesTable.scss';
 import { ListProductsMock } from '../../mock/product.mock';
 import { ItemSaleModel } from '../../models/item-sale.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartColumn, faClose } from '@fortawesome/free-solid-svg-icons';
-import { ProductModel } from '../../models/product.model';
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { PaymentTypeEnum } from '../../models';
+import { decimalFormat } from '../../utils/format-utils';
 
-
-interface SalesTableProps {
-  numLine?: Number;
-}
 
 interface ItemSale extends ItemSaleModel {
-  idx: Number;
+  idx: number;
+  discountStr?: string;
 }
 
-const SalesTable = ({
-  numLine,
-  // onClick = () => { },
-}: SalesTableProps) => {
+interface SalesTableProps {
+  numLine?: number;
+  paymentType?: PaymentTypeEnum;
+  // items: ItemSale[];
+  onChangeItems?: () => void;
+  // listProduct: ItemSale[];
+  // setListProduct: React.Dispatch<React.SetStateAction<ItemSale[]>>;
+}
 
+// const SalesTable = ({
+//   numLine,
+//   paymentType,
+//   // items,
+//   onChangeItems = () => { },
+//   // listProduct,
+//   // setListProduct,
+// }: SalesTableProps) => {
+
+// const SalesTable = forwardRef((props, ref) => {
+const SalesTable = forwardRef((props: SalesTableProps, ref) => {
+  const {
+    numLine,
+    paymentType,
+    onChangeItems = () => { },
+  } = props;
+
+
+  // const [listProduct, setListProduct] = useState<ItemSale[]>(items);
   const [listProduct, setListProduct] = useState<ItemSale[]>([]);
+  const [total, setTotal] = useState<number>(0);
+
   // console.log(`handleCountLine.end:${countLine}`)
+
+  useImperativeHandle(ref, () => ({
+    clearList() {
+      setListProduct([]); // ou qualquer lógica de limpar
+    }
+  }));
+
 
   const handleCountItem = useCallback((idx: number, value: number) => {
     setListProduct(prev => {
@@ -57,39 +87,84 @@ const SalesTable = ({
       const item = newList.find(p => p.idx === idx);
       if (item) {
         item.product = undefined
+        item.count = undefined
+        item.discount = undefined
+        item.discountStr = undefined
       }
       return newList;
     });
   }, [])
 
 
-  const handleDiscountItem = useCallback((idx: number, value: number) => {
+  // const handleDiscountItem = useCallback((idx: number, value: number) => {
+  const handleDiscountItem = useCallback((idx: number, value: string) => {
     setListProduct(prev => {
       const newList = [...prev];
       const item = newList.find(p => p.idx === idx);
+      const numeric = parseFloat(value.replace(',', '.'));
+      let discount = 0
+      if (!isNaN(numeric)) {
+        discount = numeric
+      }
+
       if (item) {
-        item.discount = value
+        item.discountStr = value
+        item.discount = discount
       } else {
-        newList.push({ idx: idx, count: value });
+        newList.push({ idx: idx, discount: discount, discountStr: value });
       }
       return newList;
     });
   }, [])
 
-  const handleCalculate = useCallback((idx: number) => {
+  const handleCalculateSubtotal = useCallback((idx: number) => {
     setListProduct(prev => {
       const item = prev.find(p => p.idx === idx);
       if (item) {
         if (item.product) {
-          item.subtototal = (item.product.buyPrice - (item.discount ?? 0)) * (item.count ?? 0)
+          const price = paymentType === PaymentTypeEnum.Credit
+            ? item.product.creditPrice
+            : item.product.cashPrice;
+          item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
         } else {
-          item.subtototal = undefined
+          item.subtotal = undefined
         }
       }
       return prev;
     });
   }, [])
 
+  useEffect(() => {
+    const result = listProduct.reduce((acc, prev) => {
+      return acc + (prev.subtotal ?? 0)
+    }, 0)
+    setTotal(result)
+  }, [listProduct]);
+
+  useEffect(() => {
+    setListProduct(prev => {
+      const updated = prev.map(item => {
+        if (item.product) {
+          const price = paymentType === PaymentTypeEnum.Credit
+            ? item.product.creditPrice
+            : item.product.cashPrice;
+          item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
+        }
+        // if (item.product) {
+        //   const price = paymentType === PaymentTypeEnum.Credit
+        //   ? item.product.creditPrice
+        //   : item.product.cashPrice;
+        //   item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
+        // } else {
+        //   item.subtotal = undefined
+        // }
+        // }
+
+        return item;
+      });
+      return updated;
+    });
+  }, [paymentType]);
 
   const products = ListProductsMock.map(item => ({
     key: item.description,
@@ -123,21 +198,27 @@ const SalesTable = ({
               width={1}
               textAlign='center'
             >
-              Preço Unit.
+              <>
+                Preço Unit.<br />(R$)
+              </>
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
               width={1}
               textAlign='center'
             >
-              Desconto
+              <>
+                Desconto <br />(R$)
+              </>
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
               width={1}
               textAlign='center'
             >
-              Subtotal
+              <>
+                Subtotal <br /> (R$)
+              </>
             </TableHeaderCell>
           </TableRow>
         </TableHeader>
@@ -156,6 +237,7 @@ const SalesTable = ({
                   className="table_input_align"
                   fluid
                   transparent
+                  value={itemProduct?.count ?? ""}
                   onKeyDown={(event) => {
                     if (!/[0-9]/.test(event.key) && event.key !== "Backspace") {
                       event.preventDefault();
@@ -163,14 +245,13 @@ const SalesTable = ({
                   }}
                   onChange={(event) => {
                     handleCountItem(index, Number(event.target.value.replace(/\D/g, '')))
-                    handleCalculate(index)
+                    handleCalculateSubtotal(index)
                   }}
                 ></Input>
               </TableCell>
               <TableCell>
 
                 <div
-                  //  className="text_total"
                   style={{ display: 'flex', alignItems: 'center' }}
                 >
                   <Dropdown
@@ -184,7 +265,7 @@ const SalesTable = ({
                     value={itemProduct?.product?.description ?? ""}
                     onChange={(_, data) => {
                       handleSelectItem(index, String(data.value))
-                      handleCalculate(index)
+                      handleCalculateSubtotal(index)
                     }}
                   />
 
@@ -195,31 +276,81 @@ const SalesTable = ({
                       size="lg"
                       onClick={() => {
                         handleRemoveItem(index)
-                        handleCalculate(index)
+                        handleCalculateSubtotal(index)
                       }}
                     />
                   }
                 </div>
               </TableCell>
-              <TableCell textAlign='center' >{itemProduct?.product?.buyPrice}</TableCell>
+              <TableCell textAlign='center' >
+                {
+                  itemProduct?.product && (
+                    paymentType === PaymentTypeEnum.Credit
+                      ? decimalFormat(itemProduct?.product?.creditPrice)
+                      : decimalFormat(itemProduct?.product?.cashPrice)
+                  )}
+
+              </TableCell>
               <TableCell textAlign='center' >
                 <Input
                   className="table_input_align"
                   fluid
                   transparent
+                  value={itemProduct?.discountStr ?? ""}
+                  // value={itemProduct?.discount ? itemProduct?.discount.toString().replace('.', ',') : ""}
+                  // value={itemProduct?.discount !== undefined
+                  //   ? itemProduct.discount.toFixed(2).replace('.', ',')
+                  //   : ""}
                   onKeyDown={(event) => {
-                    if (!/[0-9]/.test(event.key) && event.key !== "Backspace") {
+                    const { key, currentTarget } = event;
+                    const value = currentTarget.value;
+
+                    // console.log(`onKeyDown.key:${key}`)
+                    // console.log(`onKeyDown.value:${value}`)
+
+                    const isNumber = /^[0-9]$/.test(key);
+                    const isComma = key === ',';
+                    const hasComma = value.includes(',');
+                    const isBackspace = key === 'Backspace';
+                    const decimalPart = value.split(',')[1] ?? '';
+                    const tooManyDecimals = hasComma && decimalPart.length >= 2;
+
+                    if (!isBackspace && ((!isNumber && !isComma) || (isComma && hasComma) || tooManyDecimals)) {
                       event.preventDefault();
+                      // console.log(`preventDefault`)
+                      // console.log(`isBackspace:${isBackspace}`)
+                      // console.log(`isNumber:${isNumber}`)
+                      // console.log(`isComma:${isComma}`)
+                      // console.log(`hasComma:${hasComma}`)
+                      // console.log(`tooManyDecimals:${tooManyDecimals}`)
                     }
                   }}
                   onChange={(event) => {
-                    handleDiscountItem(index, Number(event.target.value.replace(/\D/g, '')))
-                    handleCalculate(index)
+                    // const input = event.target.value;
+                    handleDiscountItem(index, event.target.value);
+                    handleCalculateSubtotal(index);
                   }}
-
+                  // onChange={(event) => {
+                  //   const input = event.target.value.replace(',', '.');
+                  //   const value = parseFloat(input)
+                  //   console.log(`value:${value}`)
+                  //   handleDiscountItem(index, value || 0);
+                  //   handleCalculateSubtotal(index);
+                  // }}
+                  onBlur={(event) => {
+                    const value = parseFloat(event.target.value.replace(',', '.'));
+                    if (!isNaN(value)) {
+                      // event.target.value = valor.toFixed(2).replace('.', ',');
+                      // handleDiscountItem(index, parseFloat(valor.toFixed(2).replace('.', ',')) || 0);
+                      handleDiscountItem(index, value.toFixed(2).replace('.', ','));
+                      handleCalculateSubtotal(index);
+                    }
+                  }}
                 ></Input>
               </TableCell>
-              <TableCell textAlign='center' >{itemProduct?.subtototal}</TableCell>
+              <TableCell textAlign='center' >
+                {itemProduct?.subtotal && decimalFormat(itemProduct?.subtotal)}
+              </TableCell>
             </TableRow>)
           })}
         </TableBody>
@@ -253,27 +384,19 @@ const SalesTable = ({
                 <div className="text_total">
                   Total da compra
                 </div>
-                <div className="text_total">
-                  R$ 123,45
-                </div>
+                {total > 0 &&
+                  <div className="text_total">
+                    {`R$ ${decimalFormat(total)}`}
+                  </div>
+                }
               </div>
             </TableHeaderCell>
           </TableRow>
         </TableFooter>
       </Table>
-
-      {/* <div className="footer_buttons">
-        <Button
-          className="button_size"
-          onClick={handlePrint}
-        >
-          Imprimir
-        </Button>
-      </div> */}
-
     </div>
   );
-};
+});
 
 export { SalesTable };
 

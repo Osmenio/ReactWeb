@@ -18,89 +18,50 @@ import { PaymentTypeEnum } from '../../models/payment-type.enum';
 //   },
 // ]
 
+// Á Vista, A Prazo,
+
+const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
+  key: key,
+  text: value,
+  value: key,
+}));
+
 interface SalesTableHeaderProps {
-  // title?: String;
-  // placehoder?: String;
-  onChangeClient: (string) => void;
-  onChangeAddress: (string) => void;
-  onChangePaymentType: (PaymentTypeEnum) => void;
+  onChangeClient?: (string) => void;
+  onChangeAddress?: (string) => void;
+  onChangePaymentType?: (PaymentTypeEnum) => void;
 }
 
 const SalesTableHeader = ({
-  // title = "TextInput",
-  // placehoder = "TextInput"
+  onChangeClient = () => { },
+  onChangeAddress = () => { },
+  onChangePaymentType = () => { },
 }: SalesTableHeaderProps) => {
 
+  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>();
   const [dateNow] = useState<string>(format(new Date(), 'dd/MM/yyyy'));
 
   return (
-    <div
-      className="grid_content"
-    >
+    <div className="grid_content">
       <Grid>
-
-        {/* <Grid.Row
-          color='olive'
-          className="grid_row"
-        >
-          <Grid.Column
-            width={2}
-            color='red'
-            textAlign='right'
-          >
-            <p>Coluna 1</p>
-          </Grid.Column>
-          <Grid.Column
-            width={6}
-            color='blue'
-          >
-            <p>Coluna 2</p>
-          </Grid.Column>
-          <Grid.Column
-            width={2}
-            color='red'
-          >
-            <p>Coluna 3</p>
-          </Grid.Column>
-          <Grid.Column
-            width={3}
-            color='blue'
-            textAlign='right'
-          >
-            <p>Coluna 4</p>
-          </Grid.Column>
-          <Grid.Column
-            width={3}
-            color='red'
-          >
-            <p>Coluna 5</p>
-          </Grid.Column>
-        </Grid.Row> */}
-
-        {/* // */}
-        <Grid.Row
-          className="grid_row"
-        // color='olive'
-        >
-
+        <Grid.Row className="grid_row" >
           <Grid.Column
             width={2}
             textAlign='right'
-            verticalAlign='middle'
-          >
+            verticalAlign='middle'>
             <div className="grid_text">
               Cliente:
             </div>
           </Grid.Column>
           <Grid.Column
-            width={6}
-          >
+            width={6}>
             <Input
-              // className="modal_input"
+              className="input_print"
               placeholder="Nome do cliente"
               fluid
               onChange={(event) => {
                 // setUserName(event.target.value)
+                onChangeClient(event.target.value)
               }}
             />
           </Grid.Column>
@@ -110,69 +71,68 @@ const SalesTableHeader = ({
           <Grid.Column
             width={3}
             textAlign='right'
-            verticalAlign='middle'
-          >
+            verticalAlign='middle'>
             <div className="grid_text">
-              Tipo de pagamento:
+              Tipo de pgto:
             </div>
           </Grid.Column>
           <Grid.Column
-            width={3}
-          >
-            <Dropdown
-              placeholder='Tipo pgto'
-              fluid
-              selection
-              // options={PaymentTypeEnum}
-            />
+            width={3}>
+            <div className="no_print">
+              <Dropdown
+                placeholder='Tipo pgto'
+                fluid
+                selection
+                options={paymentOptions}
+                onChange={(_, data) => {
+                  const type = PaymentTypeEnum[data.value as keyof typeof PaymentTypeEnum];
+                  setPaymentType(type)
+                  onChangePaymentType(type);
+                }}
+              />
+            </div>
+            <div className="print">
+              {paymentType}
+            </div>
           </Grid.Column>
         </Grid.Row>
 
         {/* // */}
-        <Grid.Row
-          className="grid_row"
-        // color='teal'
-        >
+        <Grid.Row className="grid_row">
 
           <Grid.Column
             width={2}
             textAlign='right'
-            verticalAlign='middle'
-          >
+            verticalAlign='middle'>
             <div className="grid_text">
               Endereço:
             </div>
           </Grid.Column>
           <Grid.Column
-            width={6}
-          >
+            width={6}>
             <Input
-              // className="modal_input"
+              className="input_print"
               placeholder="Endereço"
               fluid
               onChange={(event) => {
-                // setUserName(event.target.value)
+                onChangeAddress(event.target.value)
               }}
             />
           </Grid.Column>
           <Grid.Column
-            width={2}
-          >
-            {/* <p>Coluna 3</p> */}
+            width={2}>
           </Grid.Column>
           <Grid.Column
             width={3}
             textAlign='right'
-            verticalAlign='middle'
-          >
+            verticalAlign='middle'>
             <div className="grid_text">
               Data:
             </div>
           </Grid.Column>
           <Grid.Column
             width={3}
-            verticalAlign='middle'
-          >
+            verticalAlign='middle'>
             <div className="grid_text">
               {dateNow}
             </div>

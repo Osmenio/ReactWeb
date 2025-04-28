@@ -6,5 +6,5 @@ export interface ItemSaleModel {
     count?: number;
     unitPrice?: number;
     discount?: number;
-    subtototal?: number;
+    subtotal?: number;
 }

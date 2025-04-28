@@ -1,4 +1,4 @@
 export enum PaymentTypeEnum {
-    Cash,
-    Credt
+    Cash = 'À Vista',
+    Credit = 'A Prazo',
 }
