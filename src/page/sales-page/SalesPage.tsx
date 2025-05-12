@@ -15,7 +15,7 @@ const SalesPage = () => {
 
   const [client, setClient] = useState<string>('');
   const [address, setAddress] = useState<string>('');
-  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>();
+  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Cash);
 
   // const [listProduct, setListProduct] = useState<ItemSale[]>([]);
 
@@ -74,6 +74,9 @@ const SalesPage = () => {
         ref={salesTableRef}
         numLine={countLine}
         paymentType={paymentType}
+        onChangeItems={(list) => {
+          console.log(`onChangeItems:`, list)
+        }}
       // listProduct={listProduct}
       // setListProduct={setListProduct}
       />

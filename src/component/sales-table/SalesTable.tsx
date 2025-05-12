@@ -8,7 +8,6 @@ import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { PaymentTypeEnum } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
 
-
 interface ItemSale extends ItemSaleModel {
   idx: number;
   discountStr?: string;
@@ -17,22 +16,9 @@ interface ItemSale extends ItemSaleModel {
 interface SalesTableProps {
   numLine?: number;
   paymentType?: PaymentTypeEnum;
-  // items: ItemSale[];
-  onChangeItems?: () => void;
-  // listProduct: ItemSale[];
-  // setListProduct: React.Dispatch<React.SetStateAction<ItemSale[]>>;
+  onChangeItems?: (value: ItemSaleModel[]) => void;
 }
 
-// const SalesTable = ({
-//   numLine,
-//   paymentType,
-//   // items,
-//   onChangeItems = () => { },
-//   // listProduct,
-//   // setListProduct,
-// }: SalesTableProps) => {
-
-// const SalesTable = forwardRef((props, ref) => {
 const SalesTable = forwardRef((props: SalesTableProps, ref) => {
   const {
     numLine,
@@ -40,130 +26,227 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
     onChangeItems = () => { },
   } = props;
 
-
-  // const [listProduct, setListProduct] = useState<ItemSale[]>(items);
   const [listProduct, setListProduct] = useState<ItemSale[]>([]);
   const [total, setTotal] = useState<number>(0);
 
-  // console.log(`handleCountLine.end:${countLine}`)
-
   useImperativeHandle(ref, () => ({
     clearList() {
-      setListProduct([]); // ou qualquer lógica de limpar
+      setListProduct([]);
     }
   }));
 
+  // const handleCountItem = useCallback((idx: number, value: number) => {
+  //   setListProduct(prev => {
+  //     const newList = [...prev];
+  //     const item = newList.find(p => p.idx === idx);
+  //     if (item) {
+  //       item.count = value
+  //     } else {
+  //       newList.push({ idx: idx, count: value });
+  //     }
+  //     return newList;
+  //   });
+  // }, [])
 
   const handleCountItem = useCallback((idx: number, value: number) => {
     setListProduct(prev => {
-      const newList = [...prev];
-      const item = newList.find(p => p.idx === idx);
-      if (item) {
-        item.count = value
+      const exists = prev.some(item => item.idx === idx);
+      if (exists) {
+        return prev.map(item =>
+          item.idx === idx
+            ? { ...item, count: value }
+            : item
+        );
       } else {
-        newList.push({ idx: idx, count: value });
+        return [...prev, { idx, count: value }];
       }
-      return newList;
     });
   }, [])
+
+  // const handleSelectItem = useCallback((idx: number, value: string) => {
+  //   const selected = ListProductsMock.find(p => p.description === value);
+  //   setListProduct(prev => {
+  //     const newList = [...prev];
+  //     const item = newList.find(p => p.idx === idx);
+  //     if (item) {
+  //       item.product = selected
+  //     } else {
+  //       newList.push({ idx: idx, product: selected });
+  //     }
+  //     return newList;
+  //   });
+  // }, [])
 
   const handleSelectItem = useCallback((idx: number, value: string) => {
     const selected = ListProductsMock.find(p => p.description === value);
+
     setListProduct(prev => {
-      const newList = [...prev];
-      const item = newList.find(p => p.idx === idx);
-      if (item) {
-        item.product = selected
+      const exists = prev.some(item => item.idx === idx);
+      if (exists) {
+        return prev.map(item =>
+          item.idx === idx
+            ? { ...item, product: selected }
+            : item
+        );
       } else {
-        newList.push({ idx: idx, product: selected });
+        return [...prev, { idx, product: selected }];
       }
-      return newList;
     });
   }, [])
+
+  // const handleRemoveItem = useCallback((idx: number) => {
+  //   setListProduct(prev => {
+  //     const newList = [...prev];
+  //     const item = newList.find(p => p.idx === idx);
+  //     if (item) {
+  //       item.product = undefined
+  //       item.count = undefined
+  //       item.discount = undefined
+  //       item.discountStr = undefined
+  //     }
+  //     return newList;
+  //   });
+  // }, [])
 
   const handleRemoveItem = useCallback((idx: number) => {
-    setListProduct(prev => {
-      const newList = [...prev];
-      const item = newList.find(p => p.idx === idx);
-      if (item) {
-        item.product = undefined
-        item.count = undefined
-        item.discount = undefined
-        item.discountStr = undefined
-      }
-      return newList;
-    });
+    setListProduct(prev =>
+      prev.map(item =>
+        item.idx === idx
+          ? {
+            ...item,
+            product: undefined,
+            count: undefined,
+            discount: undefined,
+            discountStr: undefined,
+          }
+          : item
+      )
+    );
   }, [])
 
+  // const handleDiscountItem = useCallback((idx: number, value: string) => {
+  //   setListProduct(prev => {
+  //     const newList = [...prev];
+  //     const item = newList.find(p => p.idx === idx);
+  //     const numeric = parseFloat(value.replace(',', '.'));
+  //     let discount = 0
+  //     if (!isNaN(numeric)) {
+  //       discount = numeric
+  //     }
 
-  // const handleDiscountItem = useCallback((idx: number, value: number) => {
+  //     if (item) {
+  //       item.discountStr = value
+  //       item.discount = discount
+  //     } else {
+  //       newList.push({ idx: idx, discount: discount, discountStr: value });
+  //     }
+  //     return newList;
+  //   });
+  // }, [])
+
   const handleDiscountItem = useCallback((idx: number, value: string) => {
-    setListProduct(prev => {
-      const newList = [...prev];
-      const item = newList.find(p => p.idx === idx);
-      const numeric = parseFloat(value.replace(',', '.'));
-      let discount = 0
-      if (!isNaN(numeric)) {
-        discount = numeric
-      }
+    const numeric = parseFloat(value.replace(',', '.'));
+    let discount = isNaN(numeric) ? 0 : numeric;
 
-      if (item) {
-        item.discountStr = value
-        item.discount = discount
+    setListProduct(prev => {
+      const exists = prev.some(item => item.idx === idx);
+      if (exists) {
+        return prev.map(item =>
+          item.idx === idx
+            ? { ...item, discount, discountStr: value }
+            : item
+        );
       } else {
-        newList.push({ idx: idx, discount: discount, discountStr: value });
+        return [...prev, { idx, discount, discountStr: value }];
       }
-      return newList;
     });
   }, [])
+
+  // const handleCalculateSubtotal = useCallback((idx: number) => {
+  //   setListProduct(prev => {
+  //     const item = prev.find(p => p.idx === idx);
+  //     if (item) {
+  //       if (item.product) {
+  //         console.log(`handleCalculateSubtotal:`, paymentType)
+  //         const price = item.unitPrice = paymentType === PaymentTypeEnum.Credit
+  //           ? item.product.creditPrice
+  //           : item.product.cashPrice;
+  //         item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
+  //       } else {
+  //         item.subtotal = undefined
+  //       }
+  //     }
+  //     return prev;
+  //   });
+  // }, [paymentType])
 
   const handleCalculateSubtotal = useCallback((idx: number) => {
-    setListProduct(prev => {
-      const item = prev.find(p => p.idx === idx);
-      if (item) {
-        if (item.product) {
-          const price = paymentType === PaymentTypeEnum.Credit
-            ? item.product.creditPrice
-            : item.product.cashPrice;
-          item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-        } else {
-          item.subtotal = undefined
+    setListProduct(prev =>
+      prev.map(item => {
+        if (item.idx !== idx) return item;
+
+        if (!item.product) {
+          return { ...item, subtotal: undefined };
         }
-      }
-      return prev;
-    });
-  }, [])
+
+        const price = paymentType === PaymentTypeEnum.Credit
+          ? item.product.creditPrice
+          : item.product.cashPrice;
+
+        const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0);
+
+        return { ...item, subtotal, unitPrice: price };
+      })
+    );
+  }, [paymentType])
+
+  const handleOnChangeListProduct = () => {
+    const list = listProduct
+      .filter(item => item.product !== undefined && item.count !== undefined)
+      .map(({ idx, discountStr, ...rest }) => rest);
+    onChangeItems(list)
+  }
 
   useEffect(() => {
     const result = listProduct.reduce((acc, prev) => {
       return acc + (prev.subtotal ?? 0)
     }, 0)
     setTotal(result)
+    handleOnChangeListProduct()
   }, [listProduct]);
 
-  useEffect(() => {
-    setListProduct(prev => {
-      const updated = prev.map(item => {
-        if (item.product) {
-          const price = paymentType === PaymentTypeEnum.Credit
-            ? item.product.creditPrice
-            : item.product.cashPrice;
-          item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-        }
-        // if (item.product) {
-        //   const price = paymentType === PaymentTypeEnum.Credit
-        //   ? item.product.creditPrice
-        //   : item.product.cashPrice;
-        //   item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-        // } else {
-        //   item.subtotal = undefined
-        // }
-        // }
+  // useEffect(() => {
+  //   setListProduct(prev => {
+  //     const updated = prev.map(item => {
+  //       if (item.product) {
+  //         const price = item.unitPrice = paymentType === PaymentTypeEnum.Credit
+  //           ? item.product.creditPrice
+  //           : item.product.cashPrice;
+  //         item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
+  //       }
+  //       return item;
+  //     });
+  //     return updated;
+  //   });
+  // }, [paymentType]);
 
-        return item;
-      });
-      return updated;
-    });
+  useEffect(() => {
+    setListProduct(prev =>
+      prev.map(item => {
+        if (!item.product) return item
+
+        const price = paymentType === PaymentTypeEnum.Credit
+          ? item.product.creditPrice
+          : item.product.cashPrice;
+        const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
+
+        return {
+          ...item,
+          unitPrice: price,
+          subtotal
+        };
+      })
+    );
   }, [paymentType]);
 
   const products = ListProductsMock.map(item => ({
@@ -297,16 +380,9 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                   fluid
                   transparent
                   value={itemProduct?.discountStr ?? ""}
-                  // value={itemProduct?.discount ? itemProduct?.discount.toString().replace('.', ',') : ""}
-                  // value={itemProduct?.discount !== undefined
-                  //   ? itemProduct.discount.toFixed(2).replace('.', ',')
-                  //   : ""}
                   onKeyDown={(event) => {
                     const { key, currentTarget } = event;
                     const value = currentTarget.value;
-
-                    // console.log(`onKeyDown.key:${key}`)
-                    // console.log(`onKeyDown.value:${value}`)
 
                     const isNumber = /^[0-9]$/.test(key);
                     const isComma = key === ',';
@@ -317,31 +393,15 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
 
                     if (!isBackspace && ((!isNumber && !isComma) || (isComma && hasComma) || tooManyDecimals)) {
                       event.preventDefault();
-                      // console.log(`preventDefault`)
-                      // console.log(`isBackspace:${isBackspace}`)
-                      // console.log(`isNumber:${isNumber}`)
-                      // console.log(`isComma:${isComma}`)
-                      // console.log(`hasComma:${hasComma}`)
-                      // console.log(`tooManyDecimals:${tooManyDecimals}`)
                     }
                   }}
                   onChange={(event) => {
-                    // const input = event.target.value;
                     handleDiscountItem(index, event.target.value);
                     handleCalculateSubtotal(index);
                   }}
-                  // onChange={(event) => {
-                  //   const input = event.target.value.replace(',', '.');
-                  //   const value = parseFloat(input)
-                  //   console.log(`value:${value}`)
-                  //   handleDiscountItem(index, value || 0);
-                  //   handleCalculateSubtotal(index);
-                  // }}
                   onBlur={(event) => {
                     const value = parseFloat(event.target.value.replace(',', '.'));
                     if (!isNaN(value)) {
-                      // event.target.value = valor.toFixed(2).replace('.', ',');
-                      // handleDiscountItem(index, parseFloat(valor.toFixed(2).replace('.', ',')) || 0);
                       handleDiscountItem(index, value.toFixed(2).replace('.', ','));
                       handleCalculateSubtotal(index);
                     }

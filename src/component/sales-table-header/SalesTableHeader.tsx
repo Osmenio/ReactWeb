@@ -23,7 +23,7 @@ import { PaymentTypeEnum } from '../../models/payment-type.enum';
 const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
   key: key,
   text: value,
-  value: key,
+  value: value,
 }));
 
 interface SalesTableHeaderProps {
@@ -38,8 +38,13 @@ const SalesTableHeader = ({
   onChangePaymentType = () => { },
 }: SalesTableHeaderProps) => {
 
-  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>();
+  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Cash);
   const [dateNow] = useState<string>(format(new Date(), 'dd/MM/yyyy'));
+
+    const handleChangeType = useCallback((type: PaymentTypeEnum) => {
+      setPaymentType(type)
+      onChangePaymentType(type);
+    }, [paymentType])
 
   return (
     <div className="grid_content">
@@ -60,7 +65,6 @@ const SalesTableHeader = ({
               placeholder="Nome do cliente"
               fluid
               onChange={(event) => {
-                // setUserName(event.target.value)
                 onChangeClient(event.target.value)
               }}
             />
@@ -80,14 +84,13 @@ const SalesTableHeader = ({
             width={3}>
             <div className="no_print">
               <Dropdown
-                placeholder='Tipo pgto'
                 fluid
                 selection
+                value={paymentType}
                 options={paymentOptions}
                 onChange={(_, data) => {
-                  const type = PaymentTypeEnum[data.value as keyof typeof PaymentTypeEnum];
-                  setPaymentType(type)
-                  onChangePaymentType(type);
+                  const type = data.value as PaymentTypeEnum;
+                  handleChangeType(type);
                 }}
               />
             </div>
