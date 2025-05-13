@@ -10,17 +10,12 @@ const SalesPage = () => {
 
   const salesTableRef = useRef<{ clearList: () => void }>(null);
 
-  // const printRef = useRef<HTMLDivElement>(null);
   const [countLine, setCountLine] = useState<number>(5);
-
   const [client, setClient] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Cash);
 
-  // const [listProduct, setListProduct] = useState<ItemSale[]>([]);
-
   const handleCountLine = useCallback((isAdd: boolean) => {
-    // console.log(`handleCountLine`)
     if (isAdd) {
       setCountLine(prev => {
         return prev + 1
@@ -45,10 +40,12 @@ const SalesPage = () => {
     }
   }, [client, address, paymentType])
 
-  const handleClearListProduct = () => {
-    // setListProduct([]);
+  const handleClearListProduct = useCallback(() => {
+    setClient("");
+    setAddress("");
+    setPaymentType(PaymentTypeEnum.Cash);
     salesTableRef.current?.clearList();
-  };
+  }, []);
 
   return <>
     < TopPageTitle
@@ -57,6 +54,9 @@ const SalesPage = () => {
 
     <div className="header_margin">
       <SalesTableHeader
+        client={client}
+        address={address}
+        paymentType={paymentType}
         onChangeClient={(client) => {
           setClient(client)
         }}
@@ -77,8 +77,6 @@ const SalesPage = () => {
         onChangeItems={(list) => {
           console.log(`onChangeItems:`, list)
         }}
-      // listProduct={listProduct}
-      // setListProduct={setListProduct}
       />
     </div>
 

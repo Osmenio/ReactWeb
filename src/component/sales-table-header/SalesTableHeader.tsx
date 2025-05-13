@@ -1,24 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Dropdown, Grid, Input, Modal } from 'semantic-ui-react';
+import React, { useCallback, useState } from 'react';
+import { Dropdown, Grid, Input } from 'semantic-ui-react';
 import './SalesTableHeader.scss';
 import { format } from 'date-fns';
 import { PaymentTypeEnum } from '../../models/payment-type.enum';
-
-
-// const paymentType = [
-//   {
-//     key: '01',
-//     text: 'Á Vista',
-//     value: 'Á Vista',
-//   },
-//   {
-//     key: '02',
-//     text: 'A Prazo',
-//     value: 'A Prazo',
-//   },
-// ]
-
-// Á Vista, A Prazo,
 
 const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
   key: key,
@@ -27,22 +11,26 @@ const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
 }));
 
 interface SalesTableHeaderProps {
+  client?: string;
+  address?: string;
+  paymentType?: PaymentTypeEnum;
   onChangeClient?: (string) => void;
   onChangeAddress?: (string) => void;
   onChangePaymentType?: (PaymentTypeEnum) => void;
 }
 
 const SalesTableHeader = ({
+  client,
+  address,
+  paymentType,
   onChangeClient = () => { },
   onChangeAddress = () => { },
   onChangePaymentType = () => { },
 }: SalesTableHeaderProps) => {
 
-  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Cash);
   const [dateNow] = useState<string>(format(new Date(), 'dd/MM/yyyy'));
 
     const handleChangeType = useCallback((type: PaymentTypeEnum) => {
-      setPaymentType(type)
       onChangePaymentType(type);
     }, [paymentType])
 
@@ -64,6 +52,7 @@ const SalesTableHeader = ({
               className="input_print"
               placeholder="Nome do cliente"
               fluid
+              value={client ?? ""}
               onChange={(event) => {
                 onChangeClient(event.target.value)
               }}
@@ -117,6 +106,7 @@ const SalesTableHeader = ({
               className="input_print"
               placeholder="Endereço"
               fluid
+              value={address ?? ""}
               onChange={(event) => {
                 onChangeAddress(event.target.value)
               }}

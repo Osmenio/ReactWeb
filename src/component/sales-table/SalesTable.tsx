@@ -35,19 +35,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
     }
   }));
 
-  // const handleCountItem = useCallback((idx: number, value: number) => {
-  //   setListProduct(prev => {
-  //     const newList = [...prev];
-  //     const item = newList.find(p => p.idx === idx);
-  //     if (item) {
-  //       item.count = value
-  //     } else {
-  //       newList.push({ idx: idx, count: value });
-  //     }
-  //     return newList;
-  //   });
-  // }, [])
-
   const handleCountItem = useCallback((idx: number, value: number) => {
     setListProduct(prev => {
       const exists = prev.some(item => item.idx === idx);
@@ -62,20 +49,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
       }
     });
   }, [])
-
-  // const handleSelectItem = useCallback((idx: number, value: string) => {
-  //   const selected = ListProductsMock.find(p => p.description === value);
-  //   setListProduct(prev => {
-  //     const newList = [...prev];
-  //     const item = newList.find(p => p.idx === idx);
-  //     if (item) {
-  //       item.product = selected
-  //     } else {
-  //       newList.push({ idx: idx, product: selected });
-  //     }
-  //     return newList;
-  //   });
-  // }, [])
 
   const handleSelectItem = useCallback((idx: number, value: string) => {
     const selected = ListProductsMock.find(p => p.description === value);
@@ -94,20 +67,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
     });
   }, [])
 
-  // const handleRemoveItem = useCallback((idx: number) => {
-  //   setListProduct(prev => {
-  //     const newList = [...prev];
-  //     const item = newList.find(p => p.idx === idx);
-  //     if (item) {
-  //       item.product = undefined
-  //       item.count = undefined
-  //       item.discount = undefined
-  //       item.discountStr = undefined
-  //     }
-  //     return newList;
-  //   });
-  // }, [])
-
   const handleRemoveItem = useCallback((idx: number) => {
     setListProduct(prev =>
       prev.map(item =>
@@ -123,26 +82,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
       )
     );
   }, [])
-
-  // const handleDiscountItem = useCallback((idx: number, value: string) => {
-  //   setListProduct(prev => {
-  //     const newList = [...prev];
-  //     const item = newList.find(p => p.idx === idx);
-  //     const numeric = parseFloat(value.replace(',', '.'));
-  //     let discount = 0
-  //     if (!isNaN(numeric)) {
-  //       discount = numeric
-  //     }
-
-  //     if (item) {
-  //       item.discountStr = value
-  //       item.discount = discount
-  //     } else {
-  //       newList.push({ idx: idx, discount: discount, discountStr: value });
-  //     }
-  //     return newList;
-  //   });
-  // }, [])
 
   const handleDiscountItem = useCallback((idx: number, value: string) => {
     const numeric = parseFloat(value.replace(',', '.'));
@@ -161,24 +100,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
       }
     });
   }, [])
-
-  // const handleCalculateSubtotal = useCallback((idx: number) => {
-  //   setListProduct(prev => {
-  //     const item = prev.find(p => p.idx === idx);
-  //     if (item) {
-  //       if (item.product) {
-  //         console.log(`handleCalculateSubtotal:`, paymentType)
-  //         const price = item.unitPrice = paymentType === PaymentTypeEnum.Credit
-  //           ? item.product.creditPrice
-  //           : item.product.cashPrice;
-  //         item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-  //       } else {
-  //         item.subtotal = undefined
-  //       }
-  //     }
-  //     return prev;
-  //   });
-  // }, [paymentType])
 
   const handleCalculateSubtotal = useCallback((idx: number) => {
     setListProduct(prev =>
@@ -214,21 +135,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
     setTotal(result)
     handleOnChangeListProduct()
   }, [listProduct]);
-
-  // useEffect(() => {
-  //   setListProduct(prev => {
-  //     const updated = prev.map(item => {
-  //       if (item.product) {
-  //         const price = item.unitPrice = paymentType === PaymentTypeEnum.Credit
-  //           ? item.product.creditPrice
-  //           : item.product.cashPrice;
-  //         item.subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-  //       }
-  //       return item;
-  //     });
-  //     return updated;
-  //   });
-  // }, [paymentType]);
 
   useEffect(() => {
     setListProduct(prev =>

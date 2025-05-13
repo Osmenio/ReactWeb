@@ -1,6 +1,4 @@
-// import React from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
-// import logo from './logo.svg';
 import './App.scss';
 import { SideMenu, TopHeader } from './component';
 import { Routes, Route, Navigate } from 'react-router-dom';
