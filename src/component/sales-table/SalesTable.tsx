@@ -14,26 +14,39 @@ interface ItemSale extends ItemSaleModel {
 }
 
 interface SalesTableProps {
-  numLine?: number;
   paymentType?: PaymentTypeEnum;
   onChangeItems?: (value: ItemSaleModel[]) => void;
 }
 
 const SalesTable = forwardRef((props: SalesTableProps, ref) => {
   const {
-    numLine,
     paymentType,
     onChangeItems = () => { },
   } = props;
 
+  const [numLine, setNumLine] = useState<number>(5);
   const [listProduct, setListProduct] = useState<ItemSale[]>([]);
   const [total, setTotal] = useState<number>(0);
 
   useImperativeHandle(ref, () => ({
     clearList() {
       setListProduct([]);
+    },
+    updateNumLines(isAdd: boolean) {
+      handleNumLines(isAdd);
     }
   }));
+
+  const handleNumLines = useCallback((isAdd: boolean) => {
+    if (isAdd) {
+      setNumLine(prev => prev + 1)
+    } else {
+      const listSize = (listProduct.reduce((max, item) => item.idx > max ? item.idx : max, 0) + 1);
+      setNumLine(prev => (
+        (listSize < prev && prev > 5) ? prev - 1 : prev
+      ))
+    }
+  }, [listProduct]);
 
   const handleCountItem = useCallback((idx: number, value: number) => {
     setListProduct(prev => {
@@ -48,7 +61,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
         return [...prev, { idx, count: value }];
       }
     });
-  }, [])
+  }, []);
 
   const handleSelectItem = useCallback((idx: number, value: string) => {
     const selected = ListProductsMock.find(p => p.description === value);
@@ -65,7 +78,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
         return [...prev, { idx, product: selected }];
       }
     });
-  }, [])
+  }, []);
 
   const handleRemoveItem = useCallback((idx: number) => {
     setListProduct(prev =>
@@ -75,13 +88,14 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
             ...item,
             product: undefined,
             count: undefined,
+            unitPrice: undefined,
             discount: undefined,
             discountStr: undefined,
           }
           : item
       )
     );
-  }, [])
+  }, []);
 
   const handleDiscountItem = useCallback((idx: number, value: string) => {
     const numeric = parseFloat(value.replace(',', '.'));
@@ -99,7 +113,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
         return [...prev, { idx, discount, discountStr: value }];
       }
     });
-  }, [])
+  }, []);
 
   const handleCalculateSubtotal = useCallback((idx: number) => {
     setListProduct(prev =>
@@ -119,14 +133,14 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
         return { ...item, subtotal, unitPrice: price };
       })
     );
-  }, [paymentType])
+  }, [paymentType]);
 
   const handleOnChangeListProduct = () => {
     const list = listProduct
-      .filter(item => item.product !== undefined && item.count !== undefined)
+      // .filter(item => item.product !== undefined && item.count !== undefined)
       .map(({ idx, discountStr, ...rest }) => rest);
     onChangeItems(list)
-  }
+  };
 
   useEffect(() => {
     const result = listProduct.reduce((acc, prev) => {
@@ -159,7 +173,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
     key: item.description,
     value: item.description,
     text: item.description,
-  }))
+  }));
 
   return (
     <div>
