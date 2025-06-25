@@ -6,7 +6,7 @@ import "./SalesPage.scss"
 import { PaymentTypeEnum } from '../../models/payment-type.enum';
 import { faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons';
 import { ItemSaleModel } from '../../models';
-import { UserModal, UserModalProps } from '../../component/user-modal/UserModal';
+import { UserModal } from '../../component/user-modal/UserModal';
 
 const SalesPage = () => {
 
@@ -17,7 +17,7 @@ const SalesPage = () => {
 
   const [client, setClient] = useState<string>('');
   const [address, setAddress] = useState<string>('');
-  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Cash);
+  const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Debit);
   const [listItems, setListItems] = useState<ItemSaleModel[]>([]);
 
   const [userModalOpen, setUserModalOpen] = useState(false);
@@ -67,7 +67,7 @@ const SalesPage = () => {
   const handleClearListProduct = useCallback(() => {
     setClient("");
     setAddress("");
-    setPaymentType(PaymentTypeEnum.Cash);
+    setPaymentType(PaymentTypeEnum.Debit);
     salesTableRef.current?.clearList();
   }, []);
 
@@ -159,7 +159,7 @@ const SalesPage = () => {
           }}
 
         >
-          Salvar e Imprimir
+          Salvar
         </Button>
       </div>
     </div>
@@ -181,10 +181,6 @@ const SalesPage = () => {
     //   setUserModalOpen(false)
     // }}
     />
-
-    {/* <UserModal
-      {...userModalProps}
-    /> */}
   </>
 }
 

@@ -1,7 +1,7 @@
 import { Modal, Button } from 'semantic-ui-react';
 import './UserModal.scss';
 
-export interface UserModalProps {
+interface UserModalProps {
   open: boolean;
   title: string;
   subtitle: string;
