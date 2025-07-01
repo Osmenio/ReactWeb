@@ -1,193 +1,39 @@
-import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from 'react';
-import { Dropdown, Input, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
-import './SalesTable.scss';
+import { forwardRef } from 'react';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
+import './ProductsTable.scss';
 import { ListProductsMock } from '../../mock/product.mock';
-import { ItemSaleModel } from '../../models/item-sale.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { PaymentTypeEnum } from '../../models';
+import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { ProductModel } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
+import { ProductStatusEnum } from '../../models/product-status.enum';
 
-interface ItemSale extends ItemSaleModel {
-  idx: number;
-  discountStr?: string;
+interface ProductsTableProps {
+  items: ProductModel[];
+  onEdit?: (item: ProductModel) => void;
+  onDelete?: (item: ProductModel) => void;
 }
 
-interface SalesTableProps {
-  paymentType?: PaymentTypeEnum;
-  onChangeItems?: (value: ItemSaleModel[]) => void;
-}
-
-const SalesTable = forwardRef((props: SalesTableProps, ref) => {
+const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
   const {
-    paymentType,
-    onChangeItems = () => { },
+    items,
+    onEdit = () => { },
+    onDelete = () => { },
   } = props;
-
-  const [numLine, setNumLine] = useState<number>(5);
-  const [listProduct, setListProduct] = useState<ItemSale[]>([]);
-  const [total, setTotal] = useState<number>(0);
-
-  useImperativeHandle(ref, () => ({
-    clearList() {
-      setListProduct([]);
-    },
-    updateNumLines(isAdd: boolean) {
-      handleNumLines(isAdd);
-    }
-  }));
-
-  const handleNumLines = useCallback((isAdd: boolean) => {
-    if (isAdd) {
-      setNumLine(prev => prev + 1)
-    } else {
-      const listSize = (listProduct.reduce((max, item) => item.idx > max ? item.idx : max, 0) + 1);
-      setNumLine(prev => (
-        (listSize < prev && prev > 5) ? prev - 1 : prev
-      ))
-    }
-  }, [listProduct]);
-
-  const handleCountItem = useCallback((idx: number, value: number) => {
-    setListProduct(prev => {
-      const exists = prev.some(item => item.idx === idx);
-      if (exists) {
-        return prev.map(item =>
-          item.idx === idx
-            ? { ...item, count: value }
-            : item
-        );
-      } else {
-        return [...prev, { idx, count: value }];
-      }
-    });
-  }, []);
-
-  const handleSelectItem = useCallback((idx: number, value: string) => {
-    const selected = ListProductsMock.find(p => p.description === value);
-
-    setListProduct(prev => {
-      const exists = prev.some(item => item.idx === idx);
-      if (exists) {
-        return prev.map(item =>
-          item.idx === idx
-            ? { ...item, product: selected }
-            : item
-        );
-      } else {
-        return [...prev, { idx, product: selected }];
-      }
-    });
-  }, []);
-
-  const handleRemoveItem = useCallback((idx: number) => {
-    setListProduct(prev =>
-      prev.map(item =>
-        item.idx === idx
-          ? {
-            ...item,
-            product: undefined,
-            count: undefined,
-            unitPrice: undefined,
-            discount: undefined,
-            discountStr: undefined,
-          }
-          : item
-      )
-    );
-  }, []);
-
-  const handleDiscountItem = useCallback((idx: number, value: string) => {
-    const numeric = parseFloat(value.replace(',', '.'));
-    let discount = isNaN(numeric) ? 0 : numeric;
-
-    setListProduct(prev => {
-      const exists = prev.some(item => item.idx === idx);
-      if (exists) {
-        return prev.map(item =>
-          item.idx === idx
-            ? { ...item, discount, discountStr: value }
-            : item
-        );
-      } else {
-        return [...prev, { idx, discount, discountStr: value }];
-      }
-    });
-  }, []);
-
-  const handleCalculateSubtotal = useCallback((idx: number) => {
-    setListProduct(prev =>
-      prev.map(item => {
-        if (item.idx !== idx) return item;
-
-        if (!item.product) {
-          return { ...item, subtotal: undefined };
-        }
-        let price = 0
-        switch (paymentType) {
-          case PaymentTypeEnum.Pix:
-            price = item.product.priceOne
-            break;
-          case PaymentTypeEnum.Debit:
-            price = item.product.priceTwo
-            break;
-          default:
-            price = item.product.priceThree
-        }
-
-        const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0);
-
-        return { ...item, subtotal, unitPrice: price };
-      })
-    );
-  }, [paymentType]);
-
-  const handleOnChangeListProduct = () => {
-    const list = listProduct
-      // .filter(item => item.product !== undefined && item.count !== undefined)
-      .map(({ idx, discountStr, ...rest }) => rest);
-    onChangeItems(list)
-  };
-
-  useEffect(() => {
-    const result = listProduct.reduce((acc, prev) => {
-      return acc + (prev.subtotal ?? 0)
-    }, 0)
-    setTotal(result)
-    handleOnChangeListProduct()
-  }, [listProduct]);
-
-  useEffect(() => {
-    setListProduct(prev =>
-      prev.map(item => {
-        if (!item.product) return item
-        let price = 0
-        switch (paymentType) {
-          case PaymentTypeEnum.Pix:
-            price = item.product.priceOne
-            break;
-          case PaymentTypeEnum.Debit:
-            price = item.product.priceTwo
-            break;
-          default:
-            price = item.product.priceThree
-        }
-        const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-
-        return {
-          ...item,
-          unitPrice: price,
-          subtotal
-        };
-      })
-    );
-  }, [paymentType]);
 
   const products = ListProductsMock.map(item => ({
     key: item.description,
     value: item.description,
     text: item.description,
   }));
+
+  const getStatusColor = (status: ProductStatusEnum): string => {
+    switch (status) {
+      case ProductStatusEnum.InStock: return 'green';
+      case ProductStatusEnum.OutOfStock: return 'red';
+      default: return 'inherit';
+    }
+  };
 
   return (
     <div>
@@ -199,16 +45,16 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
           <TableRow>
             <TableHeaderCell
               className="table_header"
-              warning
-              width={1}
-              textAlign='center'
+              width={6}
             >
-              Qtd.</TableHeaderCell>
+              Produtos
+              </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
-              width={3}
+              width={2}
+              textAlign='center'
             >
-              Produto
+              Situação
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
@@ -216,7 +62,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
               textAlign='center'
             >
               <>
-                Preço Unit.<br />(R$)
+                Valor<br />Compra
               </>
             </TableHeaderCell>
             <TableHeaderCell
@@ -225,7 +71,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
               textAlign='center'
             >
               <>
-                Desconto <br />(R$)
+                Valor <br />Pix
               </>
             </TableHeaderCell>
             <TableHeaderCell
@@ -234,171 +80,78 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
               textAlign='center'
             >
               <>
-                Subtotal <br /> (R$)
+                Valor <br /> Débito
+              </>
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="table_header"
+              width={1}
+              textAlign='center'
+            >
+              <>
+                Valor <br /> Crédito
+              </>
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="table_header"
+              width={1}
+              textAlign='center'
+            >
+              <>
+                Ações
               </>
             </TableHeaderCell>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {[...Array(numLine)].map((value, index) => {
-
-            const itemProduct = listProduct.find(p => p.idx === index);
-            let itemPrice: number | undefined
-            switch (paymentType) {
-              case PaymentTypeEnum.Pix:
-                itemPrice = itemProduct?.product?.priceOne
-                break;
-              case PaymentTypeEnum.Debit:
-                itemPrice = itemProduct?.product?.priceTwo
-                break;
-              default:
-                itemPrice = itemProduct?.product?.priceThree
-            }
+          {items.map((item, index) => {
 
             return (<TableRow
               key={index}
             >
+              <TableCell>
+                {item.description}
+              </TableCell>
               <TableCell
                 textAlign='center'
+                style={{ color: getStatusColor(item.status) }}
               >
-                <Input
-                  className="table_input_align"
-                  fluid
-                  transparent
-                  value={itemProduct?.count ?? ""}
-                  onKeyDown={(event) => {
-                    if (!/[0-9]/.test(event.key) && event.key !== "Backspace") {
-                      event.preventDefault();
-                    }
-                  }}
-                  onChange={(event) => {
-                    handleCountItem(index, Number(event.target.value.replace(/\D/g, '')))
-                    handleCalculateSubtotal(index)
-                  }}
-                ></Input>
-              </TableCell>
-              <TableCell>
-
-                <div
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  <Dropdown
-                    inline
-                    icon={null}
-                    fluid
-                    search
-                    closeOnChange
-                    clearable
-                    options={products}
-                    value={itemProduct?.product?.description ?? ""}
-                    onChange={(_, data) => {
-                      handleSelectItem(index, String(data.value))
-                      handleCalculateSubtotal(index)
-                    }}
-                  />
-
-                  {itemProduct?.product &&
-                    <FontAwesomeIcon
-                      className="no_print"
-                      icon={faClose}
-                      size="lg"
-                      onClick={() => {
-                        handleRemoveItem(index)
-                        handleCalculateSubtotal(index)
-                      }}
-                    />
-                  }
-                </div>
+                {item.status}
               </TableCell>
               <TableCell textAlign='center' >
-                {
-                  itemProduct?.product && itemPrice && decimalFormat(itemPrice)
-                }
+                {decimalFormat(item.buyPrice)}
               </TableCell>
               <TableCell textAlign='center' >
-                <Input
-                  className="table_input_align"
-                  fluid
-                  transparent
-                  value={itemProduct?.discountStr ?? ""}
-                  onKeyDown={(event) => {
-                    const { key, currentTarget } = event;
-                    const value = currentTarget.value;
-
-                    const isNumber = /^[0-9]$/.test(key);
-                    const isComma = key === ',';
-                    const hasComma = value.includes(',');
-                    const isBackspace = key === 'Backspace';
-                    const decimalPart = value.split(',')[1] ?? '';
-                    const tooManyDecimals = hasComma && decimalPart.length >= 2;
-
-                    if (!isBackspace && ((!isNumber && !isComma) || (isComma && hasComma) || tooManyDecimals)) {
-                      event.preventDefault();
-                    }
-                  }}
-                  onChange={(event) => {
-                    handleDiscountItem(index, event.target.value);
-                    handleCalculateSubtotal(index);
-                  }}
-                  onBlur={(event) => {
-                    const value = parseFloat(event.target.value.replace(',', '.'));
-                    if (!isNaN(value)) {
-                      handleDiscountItem(index, value.toFixed(2).replace('.', ','));
-                      handleCalculateSubtotal(index);
-                    }
-                  }}
-                ></Input>
+                {decimalFormat(item.priceOne)}
               </TableCell>
               <TableCell textAlign='center' >
-                {itemProduct?.subtotal && decimalFormat(itemProduct?.subtotal)}
+                {decimalFormat(item.priceTwo)}
               </TableCell>
+              <TableCell textAlign='center' >
+                {decimalFormat(item.priceThree)}
+              </TableCell>
+              <TableCell textAlign='center' >
+
+                <FontAwesomeIcon
+                  icon={faPen}
+                  onClick={() => onEdit(item)} />
+
+                <FontAwesomeIcon
+                  icon={faTrash}
+                  color='red'
+                  style={{ marginLeft: '10px' }}
+                  onClick={() => onDelete(item)} />
+
+              </TableCell>
+
             </TableRow>)
           })}
         </TableBody>
-
-        <TableFooter>
-          <TableRow>
-            <TableHeaderCell
-              className="table_header"
-              textAlign='center'
-            >
-              <div className="text_total">
-                Obs.:
-              </div>
-            </TableHeaderCell>
-            <TableHeaderCell
-              className="table_header"
-              colSpan="100%"
-            >
-              <Input
-                fluid
-                transparent
-              ></Input>
-            </TableHeaderCell>
-          </TableRow>
-          <TableRow>
-            <TableHeaderCell
-              className="table_header"
-              colSpan="100%"
-            >
-              <div className="table_total">
-                <div className="text_total">
-                  Total da compra
-                </div>
-                {total > 0 &&
-                  <div className="text_total">
-                    {`R$ ${decimalFormat(total)}`}
-                  </div>
-                }
-              </div>
-            </TableHeaderCell>
-          </TableRow>
-        </TableFooter>
       </Table>
     </div>
   );
 });
 
-export { SalesTable };
+export { ProductsTable };
 

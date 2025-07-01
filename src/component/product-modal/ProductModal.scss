@@ -1,0 +1,40 @@
+.product_modal {
+  max-width: 400px !important;
+  width: 90% !important;
+  margin: 0 auto !important;
+}
+
+.product_modal_title {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.product_modal_container {
+  margin: 0 20px;
+}
+
+.product_modal_grid {
+  display: flex;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.product_modal_input {
+  flex: 1;
+  margin-top: 5px;
+}
+
+.product_footer_buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.product_button_size {
+  min-width: 100px;
+  margin: 10px 0 !important;
+}
