@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import './App.scss';
 import { SideMenu, TopHeader } from './component';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { DashboardPage, HomePage, ProductsPage, SalesPage } from './page';
+import { BalancePage, DashboardPage, HomePage, ProductsPage, SalesPage } from './page';
 
 import './semantic-ui-components-customization.scss';
 import 'semantic-ui-css/semantic.min.css';
@@ -32,6 +32,7 @@ const App = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/product" element={<ProductsPage />} />
             <Route path="/sales" element={<SalesPage />} />
+            <Route path="/balance" element={<BalancePage />} />
 
             {/* {isLoggedIn ? (
               <>

@@ -1,0 +1,14 @@
+.bt_table_content {
+    overflow-x: scroll;
+}
+
+.bt_table {
+    min-width: 1500px;
+}
+
+.ui.table tbody {
+    td.bt_table_cell {
+        // background-color: aqua !important;
+        padding: 5px !important;
+    }
+}

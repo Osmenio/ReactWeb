@@ -79,7 +79,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
               </Link>
             </li>
             <li>
-              <Link to="/dashboard">
+              <Link to="/balance">
                 <FontAwesomeIcon icon={faCalculator} />
                 <span>Balanço</span>
               </Link>

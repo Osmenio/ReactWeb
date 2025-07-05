@@ -1,3 +1,5 @@
+export * from './balance-table/BalanceTable';
+export * from './balance-table-header/BalanceTableHeader';
 export * from './login-modal/LoginModal';
 export * from './product-modal/ProductModal';
 export * from './products-table/ProductsTable';

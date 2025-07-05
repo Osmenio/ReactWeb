@@ -5,12 +5,13 @@ import { ListProductsMock } from '../../mock/product.mock';
 import { ItemSaleModel } from '../../models/item-sale.model';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
-import { PaymentTypeEnum } from '../../models';
+import { PaymentTypeEnum, ProductModel } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
 
 interface ItemSale extends ItemSaleModel {
   idx: number;
   discountStr?: string;
+  itemProduct?: ProductModel;
 }
 
 interface SalesTableProps {
@@ -71,11 +72,11 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
       if (exists) {
         return prev.map(item =>
           item.idx === idx
-            ? { ...item, product: selected }
+            ? { ...item, itemProduct: selected, product: selected?.description, buyPrice: selected?.buyPrice }
             : item
         );
       } else {
-        return [...prev, { idx, product: selected }];
+        return [...prev, { idx, itemProduct: selected, product: selected?.description, buyPrice: selected?.buyPrice }];
       }
     });
   }, []);
@@ -87,10 +88,12 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
           ? {
             ...item,
             product: undefined,
+            buyPrice: undefined,
             count: undefined,
             unitPrice: undefined,
             discount: undefined,
             discountStr: undefined,
+            itemProduct: undefined,
           }
           : item
       )
@@ -120,19 +123,21 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
       prev.map(item => {
         if (item.idx !== idx) return item;
 
-        if (!item.product) {
+        // if (!item.product) {
+        if (!item.itemProduct) {
           return { ...item, subtotal: undefined };
         }
+
         let price = 0
         switch (paymentType) {
           case PaymentTypeEnum.Pix:
-            price = item.product.priceOne
+            price = item.itemProduct.priceOne
             break;
           case PaymentTypeEnum.Debit:
-            price = item.product.priceTwo
+            price = item.itemProduct.priceTwo
             break;
           default:
-            price = item.product.priceThree
+            price = item.itemProduct.priceThree
         }
 
         const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0);
@@ -160,17 +165,18 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
   useEffect(() => {
     setListProduct(prev =>
       prev.map(item => {
-        if (!item.product) return item
+        if (!item.itemProduct) return item
+
         let price = 0
         switch (paymentType) {
           case PaymentTypeEnum.Pix:
-            price = item.product.priceOne
+            price = item.itemProduct.priceOne
             break;
           case PaymentTypeEnum.Debit:
-            price = item.product.priceTwo
+            price = item.itemProduct.priceTwo
             break;
           default:
-            price = item.product.priceThree
+            price = item.itemProduct.priceThree
         }
         const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
 
@@ -247,13 +253,13 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
             let itemPrice: number | undefined
             switch (paymentType) {
               case PaymentTypeEnum.Pix:
-                itemPrice = itemProduct?.product?.priceOne
+                itemPrice = itemProduct?.itemProduct?.priceOne
                 break;
               case PaymentTypeEnum.Debit:
-                itemPrice = itemProduct?.product?.priceTwo
+                itemPrice = itemProduct?.itemProduct?.priceTwo
                 break;
               default:
-                itemPrice = itemProduct?.product?.priceThree
+                itemPrice = itemProduct?.itemProduct?.priceThree
             }
 
             return (<TableRow
@@ -291,7 +297,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                     closeOnChange
                     clearable
                     options={products}
-                    value={itemProduct?.product?.description ?? ""}
+                    value={itemProduct?.itemProduct?.description ?? ""}
                     onChange={(_, data) => {
                       handleSelectItem(index, String(data.value))
                       handleCalculateSubtotal(index)
