@@ -10,6 +10,7 @@ import { decimalFormat } from '../../utils/format-utils';
 
 interface ItemSale extends ItemSaleModel {
   idx: number;
+  // idRow: number;
   discountStr?: string;
   itemProduct?: ProductModel;
 }

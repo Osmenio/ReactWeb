@@ -3,7 +3,7 @@ import { ProductModel } from "../models/product.model"
 
 export const ListProductsMock: ProductModel[] = [
     {
-        // id: 1,
+        id: 1,
         description: "Mouse",
         buyPrice: 1.34,
         priceOne: 11.34,
@@ -11,7 +11,7 @@ export const ListProductsMock: ProductModel[] = [
         priceThree: 1111.34,
         status: ProductStatusEnum.InStock
     },{
-        // id: 2,
+        id: 2,
         description: "Teclado mecânico",
         buyPrice: 2.53,
         priceOne: 22.53,
@@ -19,7 +19,7 @@ export const ListProductsMock: ProductModel[] = [
         priceThree: 2222.53,
         status: ProductStatusEnum.OutOfStock
     },{
-        // id: 3,
+        id: 3,
         description: "Monitor ultrawide",
         buyPrice: 3.68,
         priceOne: 33.68,
@@ -27,7 +27,7 @@ export const ListProductsMock: ProductModel[] = [
         priceThree: 3333.68,
         status: ProductStatusEnum.InStock
     },{
-        // id: 4,
+        id: 4,
         description: "Notebook",
         buyPrice: 4.17,
         priceOne: 44.17,
@@ -35,7 +35,7 @@ export const ListProductsMock: ProductModel[] = [
         priceThree: 4444.17,
         status: ProductStatusEnum.OutOfStock
     },{
-        // id: 5,
+        id: 5,
         description: "Cadeira escritório",
         buyPrice: 5.93,
         priceOne: 55.93,

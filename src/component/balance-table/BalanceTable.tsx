@@ -1,29 +1,19 @@
-import React, { useCallback, useState } from 'react';
-import { Button, Dropdown, Grid, Input, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
+import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
 import './BalanceTable.scss';
-import { format } from 'date-fns';
-import { PaymentTypeEnum } from '../../models/payment-type.enum';
-import { SaleModel } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-
+import { ItemBalance } from '../../page/balance-page/BalancePage';
 
 interface BalanceTableProps {
-  items?: SaleModel[];
-  onDelete?: () => void;
+  items: ItemBalance[];
+  onDelete?: (ItemBalance) => void;
 }
 
 const BalanceTable = ({
   items,
   onDelete = () => { },
 }: BalanceTableProps) => {
-
-  // const [dateNow] = useState<string>(format(new Date(), 'dd/MM/yyyy'));
-
-  // const handleChangeType = useCallback((type: PaymentTypeEnum) => {
-  //   onChangePaymentType(type);
-  // }, [paymentType])
 
   return (
     <div className="bt_table_content">
@@ -131,11 +121,13 @@ const BalanceTable = ({
         </TableHeader>
 
         <TableBody>
-          {items?.map((sale, index) => {
-            return sale.itemsSale.map((itemsale, index) => {
+          {
+            // listItemBalance?.map((item, index) => {
+          items?.map((item, index) => {
+          //   return sale.itemsSale.map((itemsale, index) => {
 
-              const buySubtotal = (itemsale.count ?? 0) * (itemsale.buyPrice ?? 0)
-              const saleSubtotal = (itemsale.count ?? 0) * ((itemsale.unitPrice ?? 0) - (itemsale.discount ?? 0))
+              const buySubtotal = (item.count ?? 0) * (item.buyPrice ?? 0)
+              const saleSubtotal = (item.count ?? 0) * ((item.unitPrice ?? 0) - (item.discount ?? 0))
               const totalDiff = saleSubtotal - buySubtotal
               return (
                 <TableRow>
@@ -143,56 +135,56 @@ const BalanceTable = ({
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {sale.date}
+                    {item.date}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {sale.time}
+                    {item.time}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='left'
                   >
-                    {sale.client}
+                    {item.client}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {sale.saleman}
+                    {item.saleman}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='left'
                   >
-                    {itemsale.product}
+                    {item.product}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {sale.paymentType}
+                    {item.paymentType}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {itemsale.count}
+                    {item.count}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {decimalFormat(itemsale.buyPrice ?? 0)}
+                    {decimalFormat(item.buyPrice ?? 0)}
                   </TableCell>
 
                   <TableCell
@@ -206,14 +198,14 @@ const BalanceTable = ({
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {decimalFormat(itemsale.unitPrice ?? 0)}
+                    {decimalFormat(item.unitPrice ?? 0)}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {itemsale.discount}
+                    {item.discount}
                   </TableCell>
 
                   <TableCell
@@ -237,13 +229,13 @@ const BalanceTable = ({
                     <FontAwesomeIcon
                       icon={faTrash}
                       color='red'
-                      onClick={() => { 
-                        onDelete()
+                      onClick={() => {
+                        onDelete(item)
                       }} />
                   </TableCell>
                 </TableRow>
               )
-            })
+            // })
           })}
         </TableBody>
 
