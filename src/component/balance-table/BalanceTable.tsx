@@ -8,39 +8,15 @@ import { decimalFormat } from '../../utils/format-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
-// const SALESMAN_MOCK = ["Carlos", "Ingrid", "Roberto", "Marcia"]
-// const salesmanOptions = Object.entries(SALESMAN_MOCK).map(([key, value]) => ({
-//   key: key,
-//   text: value,
-//   value: value,
-// }));
-
-// const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
-//   key: key,
-//   text: value,
-//   value: value,
-// }));
 
 interface BalanceTableProps {
   items?: SaleModel[];
-  onChangeClient?: (string) => void;
-  onChangeSalesMan?: (string) => void;
-  onChangeProduct?: (string) => void;
-  onChangeInitialDate?: (string) => void;
-  onChangeFinalDate?: (string) => void;
-  onChangePaymentType?: (PaymentTypeEnum) => void;
-  onSearch?: () => void;
+  onDelete?: () => void;
 }
 
 const BalanceTable = ({
   items,
-  onChangeClient = () => { },
-  onChangeSalesMan = () => { },
-  onChangeProduct = () => { },
-  onChangeInitialDate = () => { },
-  onChangeFinalDate = () => { },
-  onChangePaymentType = () => { },
-  onSearch = () => { },
+  onDelete = () => { },
 }: BalanceTableProps) => {
 
   // const [dateNow] = useState<string>(format(new Date(), 'dd/MM/yyyy'));
@@ -261,7 +237,9 @@ const BalanceTable = ({
                     <FontAwesomeIcon
                       icon={faTrash}
                       color='red'
-                      onClick={() => { }} />
+                      onClick={() => { 
+                        onDelete()
+                      }} />
                   </TableCell>
                 </TableRow>
               )

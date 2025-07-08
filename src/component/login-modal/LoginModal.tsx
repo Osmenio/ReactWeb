@@ -1,33 +1,72 @@
-import React, { useCallback, useState } from 'react';
-import { Button, Grid, Input, Modal } from 'semantic-ui-react';
+import { useCallback, useState } from 'react';
+import { Button, Input, Modal } from 'semantic-ui-react';
 import './LoginModal.scss';
-import { faBars, faTruckFast } from '@fortawesome/free-solid-svg-icons';
+import { faTruckFast } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
+interface LoginModalProps {
+  open: boolean;
+  user?: string;
+  password?: string;
+  confirmPassword?: string;
+  showConfirmPassword?: boolean;
+  error?: string;
+  onClick?: (params: {
+    user: string;
+    password: string;
+    confirmPassword: string;
+  }) => void;
+}
 
 const LoginModal = ({
   open,
+  user,
+  password,
+  confirmPassword,
+  showConfirmPassword,
+  error,
   onClick = () => { },
-}) => {
+}: LoginModalProps) => {
 
-  const [isUserNameValid, setUserNameValid] = useState<boolean>(true);
-  const [isPasswordValid, setPasswordValid] = useState<boolean>(true);
-  const [userName, setUserName] = useState<String>("");
-  const [password, setPassword] = useState<String>("");
+  const [userName, setUserName] = useState(user || "");
+  const [pwd, setPwd] = useState(password || "");
+  const [confirmPwd, setConfirmPwd] = useState(confirmPassword || "");
+
+  const [errorUserName, setErrorUserName] = useState(false);
+  const [errorPwd, setErrorPwd] = useState(false);
+  const [errorConfirmPwd, setErrorConfirmPwd] = useState(false);
 
   const handleOnClick = useCallback(() => {
+    if (isValidFields()) {
+      onClick({
+        user: userName,
+        password: pwd,
+        confirmPassword: confirmPwd
+      })
+    }
+  }, [userName, pwd, confirmPwd, showConfirmPassword]);
 
-    const isUserValid = userName.trim() !== "";
-    const isPassValid = password.trim() !== "";
+  const isValidFields = useCallback(() => {
 
-    console.log(`handleOnClick:${userName}:${password}`)
-    console.log(`valide:${isUserValid}:${isPassValid}`)
+    let isValid = true
 
-    setUserNameValid(isUserValid)
-    setPasswordValid(isPassValid)
+    if (userName.trim() === "") {
+      setErrorUserName(true)
+      isValid = false
+    }
 
-    if (isUserValid && isPassValid)
-      onClick()
-  }, [userName, password, onClick]);
+    if (pwd.trim() === "") {
+      setErrorPwd(true)
+      isValid = false
+    }
+
+    if (showConfirmPassword && (confirmPwd.trim() === "")) {
+      setErrorConfirmPwd(true)
+      isValid = false
+    }
+
+    return isValid;
+  }, [userName, pwd, confirmPwd, showConfirmPassword]);
 
   return (
     <Modal
@@ -35,17 +74,7 @@ const LoginModal = ({
       open={open}
     >
 
-      {/* <Modal.Header>
-        title
-      </Modal.Header> */}
-
-      {/* <Modal.Content
-      // className="modal_content"
-      > */}
-
-      <div
-        className="modal_content"
-      >
+      <div className="modal_content">
         <div>
           <FontAwesomeIcon
             className="modal_logo"
@@ -58,37 +87,78 @@ const LoginModal = ({
             Nome da Empresa
           </div>
 
+          <div>
+            Usuário:
+          </div>
           <Input
-            className="modal_input"
+            fluid
             placeholder="Usuário *"
+            value={userName}
             onChange={(event) => {
               setUserName(event.target.value)
+              setErrorUserName(false)
             }}
           >
           </Input>
-          {!isUserNameValid &&
-            <div className="modal_error">
+          {errorUserName &&
+            <div style={{ color: 'red' }}>
               Digite um usuário válido
             </div>
           }
 
-          {/* <div style={{ color: 'red', margin: '1rem' }}>
-             Alguma coisa aqui
-          </div> */}
-
+          <div style={{ marginTop: '20px' }}>
+            Senha:
+          </div>
           <div>
             <Input
-              className="modal_input"
+              fluid
+              type='password'
               placeholder="Senha *"
+              value={pwd}
               onChange={(event) => {
-                setPassword(event.target.value)
+                setPwd(event.target.value)
+                setErrorPwd(false)
               }}
             >
             </Input>
           </div>
-          {!isPasswordValid &&
-            <div className="modal_error">
+          {errorPwd &&
+            <div style={{ color: 'red' }}>
               Digite uma senha válida
+            </div>
+          }
+
+          {/* // */}
+          {showConfirmPassword &&
+            <div>
+              <div style={{ marginTop: '20px' }}>
+                Cofirmar Senha:
+              </div>
+              <div>
+                <Input
+                  fluid
+                  type='password'
+                  placeholder="Cofirmar Senha *"
+                  value={confirmPwd}
+                  onChange={(event) => {
+                    setConfirmPwd(event.target.value)
+                    setErrorConfirmPwd(false)
+                  }}
+                >
+                </Input>
+              </div>
+              {errorConfirmPwd &&
+                <div style={{ color: 'red' }}>
+                  Senhas diferentes
+                </div>
+              }
+            </div>
+          }
+
+          {/* // */}
+          {error &&
+            <div style={{ marginTop: '20px', color: 'red' }}>
+              {error}
             </div>
           }
 
@@ -101,17 +171,6 @@ const LoginModal = ({
 
         </div>
       </div>
-      {/* </Modal.Content> */}
-
-      {/* <Modal.Actions>
-        <Button
-          className="modal_btn"
-          onClick={onClick}
-          color="blue">
-          Entrar
-        </Button>
-
-      </Modal.Actions> */}
     </Modal>
   );
 };

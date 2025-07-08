@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Dropdown, Grid, Input } from 'semantic-ui-react';
 import './BalanceTableHeader.scss';
 import { format } from 'date-fns';
@@ -37,15 +37,98 @@ const BalanceTableHeader = ({
   onSearch = () => { },
 }: BalanceTableHeaderProps) => {
 
-  // const [dateNow] = useState<string>(format(new Date(), 'dd/MM/yyyy'));
+  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 10));
+  const [errorDate, setErrorDate] = useState('');
 
-  // const handleChangeType = useCallback((type: PaymentTypeEnum) => {
-  //   onChangePaymentType(type);
-  // }, [paymentType])
+  const handleChangeDates = useCallback(() => {
+
+    console.log(`handleChangeDates::${startDate}:${endDate}`)
+    if (startDate > endDate) {
+      setErrorDate('Data inicial maior que data final')
+    } else {
+      onChangeInitialDate(startDate)
+      onChangeFinalDate(endDate)
+    }
+  }, [startDate, endDate])
+
+  useEffect(() => {
+    handleChangeDates();
+  }, [startDate, endDate]);
 
   return (
     <div className="bth_grid_content">
       <Grid>
+
+        {/* <Grid.Row className="bth_grid_row" >
+          <Grid.Column
+            width={2}
+            textAlign='right'
+            verticalAlign='middle'>
+            <div className="bth_grid_text">
+              Cliente:
+            </div>
+          </Grid.Column>
+
+          <Grid.Column
+            width={6}>
+            <Input
+              placeholder="Nome do cliente"
+              fluid
+              onChange={(event) => {
+                onChangeClient(event.target.value)
+              }}
+            />
+          </Grid.Column>
+
+          <Grid.Column
+            width={1}
+            verticalAlign='middle'>
+            <div className="bth_grid_text">
+              Período:
+            </div>
+          </Grid.Column>
+          <Grid.Column
+            width={3}
+            verticalAlign='middle'>
+            <Input
+              className="bth_grid_input_date"
+              type='date'
+              value={startDate}
+              onChange={(event) => {
+                setErrorDate("")
+                setStartDate(event.target.value)
+              }}
+            />
+          </Grid.Column>
+          <Grid.Column
+            width={1}
+            color='red'
+            textAlign='center'
+            verticalAlign='middle'>
+            <div className="bth_grid_text">
+              à
+            </div>
+          </Grid.Column>
+
+          <Grid.Column
+            width={3}
+            verticalAlign='middle'>
+
+            <Input
+              className="bth_grid_input_date"
+              type='date'
+              value={endDate}
+              onChange={(event) => {
+                setErrorDate("")
+                setEndDate(event.target.value)
+              }}
+            />
+          </Grid.Column>
+        </Grid.Row> */}
+
+
+
         <Grid.Row className="bth_grid_row" >
           <Grid.Column
             width={2}
@@ -61,7 +144,6 @@ const BalanceTableHeader = ({
             <Input
               placeholder="Nome do cliente"
               fluid
-              // value={client ?? ""}
               onChange={(event) => {
                 onChangeClient(event.target.value)
               }}
@@ -69,8 +151,9 @@ const BalanceTableHeader = ({
           </Grid.Column>
 
           {/* // */}
+          <Grid.Column width={1} />
           <Grid.Column
-            width={8}
+            width={7}
             verticalAlign='middle'>
             <div className="bth_grid_date">
               <div className="bth_grid_text">
@@ -79,8 +162,10 @@ const BalanceTableHeader = ({
               <Input
                 className="bth_grid_input_date"
                 type='date'
+                value={startDate}
                 onChange={(event) => {
-                  onChangeInitialDate(event.target.value)
+                  setErrorDate("")
+                  setStartDate(event.target.value)
                 }}
               />
               <div className="bth_grid_text">
@@ -89,11 +174,16 @@ const BalanceTableHeader = ({
               <Input
                 className="bth_grid_input_date"
                 type='date'
+                value={endDate}
                 onChange={(event) => {
-                  onChangeFinalDate(event.target.value)
+                  setErrorDate("")
+                  setEndDate(event.target.value)
                 }}
               />
             </div>
+            {errorDate && <div style={{ color: 'red', marginLeft: '15px' }}>
+              {errorDate}
+            </div>}
           </Grid.Column>
         </Grid.Row>
 

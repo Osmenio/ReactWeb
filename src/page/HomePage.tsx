@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Navigate, useNavigate } from "react-router-dom"
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom"
 import { LoginModal } from '../component';
-// import { Breadcrumb } from "../components"
 
 const HomePage = () => {
 
@@ -10,19 +9,14 @@ const HomePage = () => {
 
   return (
     <>
-      {/* <Breadcrumb /> */}
-      {/* <Navigate to='/colaboradores' /> */}
-
-      {/* <div style={{ backgroundColor: 'antiquewhite' }}>
-
-        <p>
-          Home page teste.
-        </p>
-      </div> */}
-
       <LoginModal
         open={open}
-        onClick={() => {
+        // user='carlos'
+        // password='carlos'
+        // showConfirmPassword
+        // error='Usuário não encontrado'
+        onClick={({ user, password, confirmPassword }) => {
+          console.log(`onClick:${user}:${password}:${confirmPassword}`)
           setOpen(false);
           navigate('/dashboard');
         }}

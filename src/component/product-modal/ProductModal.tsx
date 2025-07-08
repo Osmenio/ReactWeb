@@ -108,7 +108,7 @@ const ProductModal = ({
   }, [open]);
 
   // console.log(`ProductModal::${description}:${status}:${buyPrice}:${priceOne}:${priceTwo}:${priceThree}`)
-  console.log(`ProductModal::${item?.description}:${item?.status}:${item?.buyPrice}:${item?.priceOne}:${item?.priceTwo}:${item?.priceThree}`)
+  // console.log(`ProductModal::${item?.description}:${item?.status}:${item?.buyPrice}:${item?.priceOne}:${item?.priceTwo}:${item?.priceThree}`)
   const handleSave = useCallback(() => {
     if (isValidFields()) {
       onPositiveBtn({
