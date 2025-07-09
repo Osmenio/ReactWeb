@@ -18,7 +18,7 @@ export interface ItemBalance {
   count: number;
   unitPrice: number;
   discount: number;
-  subtotal: number;
+  // subtotal: number;
 }
 
 const BalancePage = () => {
@@ -38,7 +38,7 @@ const BalancePage = () => {
         count: item.count ?? 0,
         unitPrice: item.unitPrice ?? 0,
         discount: item.discount ?? 0,
-        subtotal: item.subtotal ?? 0,
+        // subtotal: item.subtotal ?? 0,
       })))
   }
   const [client, setClient] = useState<string>('');

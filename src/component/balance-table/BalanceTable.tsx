@@ -4,6 +4,7 @@ import { decimalFormat } from '../../utils/format-utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ItemBalance } from '../../page/balance-page/BalancePage';
+import { useEffect, useState } from 'react';
 
 interface BalanceTableProps {
   items: ItemBalance[];
@@ -15,13 +16,116 @@ const BalanceTable = ({
   onDelete = () => { },
 }: BalanceTableProps) => {
 
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalBuy, setTotalBuy] = useState(0);
+  const [totalSubBuy, setTotalSubBuy] = useState(0);
+  const [totalSale, setTotalSale] = useState(0);
+  const [totaldDiscount, setTotalDiscount] = useState(0);
+  const [totalSubSale, setTotalSubSale] = useState(0);
+  const [totalDiff, setTotalDiff] = useState(0);
+
+  useEffect(() => {
+    let totalCount = 0
+    let totalBuy = 0
+    let totalSubBuy = 0
+    let totalSale = 0
+    let totaldDiscount = 0
+    let totalSubSale = 0
+    // let totalDiff = 0
+    items.forEach(item => {
+      totalCount += item.count
+      totalBuy += item.buyPrice
+      totalSubBuy += (item.count * item.buyPrice)
+      totalSale += item.unitPrice
+      totaldDiscount += item.discount
+      // totalSubSale += ((item.unitPrice - item.discount) * item.count)
+      totalSubSale += (item.count * (item.unitPrice - item.discount))
+    })
+
+    setTotalCount(totalCount)
+    setTotalBuy(totalBuy)
+    setTotalSubBuy(totalSubBuy)
+    setTotalSale(totalSale)
+    setTotalDiscount(totaldDiscount)
+    setTotalSubSale(totalSubSale)
+    setTotalDiff(totalSubSale - totalSubBuy)
+  }, [items]);
+
+
   return (
     <div className="bt_table_content">
       <Table
         className="bt_table"
         celled
       >
-        <TableHeader>
+
+        <TableHeader
+        >
+          <TableRow
+            // className="bt_table_header_resume"
+            active
+          >
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              colSpan="3"
+              textAlign='center'
+            // error
+            >
+              Resumo
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              colSpan="3"
+            />
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {totalCount}
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {decimalFormat(totalBuy)}
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {decimalFormat(totalSubBuy)}
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {decimalFormat(totalSale)}
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {decimalFormat(totaldDiscount)}
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {decimalFormat(totalSubSale)}
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="bt_table_header_resume"
+              textAlign='center'
+            >
+              {decimalFormat(totalDiff)}
+            </TableHeaderCell>
+            <TableHeaderCell className="bt_table_header_resume" />
+          </TableRow>
+        </TableHeader>
+
+        <TableHeader
+        // fullWidth={true}
+        >
           <TableRow>
             <TableHeaderCell
               width={1}
@@ -123,12 +227,13 @@ const BalanceTable = ({
         <TableBody>
           {
             // listItemBalance?.map((item, index) => {
-          items?.map((item, index) => {
-          //   return sale.itemsSale.map((itemsale, index) => {
+            items?.map((item, index) => {
+              //   return sale.itemsSale.map((itemsale, index) => {
 
               const buySubtotal = (item.count ?? 0) * (item.buyPrice ?? 0)
               const saleSubtotal = (item.count ?? 0) * ((item.unitPrice ?? 0) - (item.discount ?? 0))
               const totalDiff = saleSubtotal - buySubtotal
+
               return (
                 <TableRow>
                   <TableCell
@@ -235,8 +340,8 @@ const BalanceTable = ({
                   </TableCell>
                 </TableRow>
               )
-            // })
-          })}
+              // })
+            })}
         </TableBody>
 
       </Table>
