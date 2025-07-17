@@ -1,4 +1,4 @@
-import { Modal, Button, Input, Dropdown } from 'semantic-ui-react';
+import { Modal, Button, Input, Dropdown, DropdownMenu, DropdownItem } from 'semantic-ui-react';
 import './ProductModal.scss';
 import { useCallback, useEffect, useState } from 'react';
 import { ProductStatusEnum } from '../../models/product-status.enum';
@@ -60,6 +60,7 @@ const productStatus = Object.entries(ProductStatusEnum).map(([key, value]) => ({
   key: key,
   text: value,
   value: value,
+  color: 'red',
 }));
 
 interface ProductModalProps {
@@ -172,6 +173,14 @@ const ProductModal = ({
     setErrorPriceThree("")
   };
 
+  const getStatusColor = (status: ProductStatusEnum): string => {
+    switch (status) {
+      case ProductStatusEnum.InStock: return 'green';
+      case ProductStatusEnum.OutOfStock: return 'red';
+      default: return 'inherit';
+    }
+  };
+
   return (
     <Modal
       open={open}
@@ -205,18 +214,38 @@ const ProductModal = ({
             Situação:
           </div>
           <Dropdown
-            style={{ marginTop: '5px' }}
+            style={{ marginTop: '5px', color: getStatusColor(status ?? ProductStatusEnum.InStock) }}
             placeholder="Situação"
             error={errorStatus.trim() !== ""}
             selection
             value={status}
             options={productStatus}
             onChange={(_, data) => {
+              console.log(`onChange::${data.value}`)
               const status = data.value as ProductStatusEnum
               setStatus(status)
               setErrorStatus("")
             }}
-          />
+          >
+            <DropdownMenu>
+              <DropdownItem
+                value={ProductStatusEnum.InStock}
+                style={{ color: 'green' }}
+                text={ProductStatusEnum.InStock}
+                onClick={() => {
+                  setStatus(ProductStatusEnum.InStock)
+                }}
+              />
+              <DropdownItem
+                value={ProductStatusEnum.OutOfStock}
+                style={{ color: 'red' }}
+                text={ProductStatusEnum.OutOfStock}
+                onClick={() => {
+                  setStatus(ProductStatusEnum.OutOfStock)
+                }}
+              />
+            </DropdownMenu>
+          </Dropdown>
           {errorStatus.trim() !== "" && <div style={{ color: 'red' }}>
             {errorStatus}
           </div>}

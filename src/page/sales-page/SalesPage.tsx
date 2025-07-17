@@ -72,14 +72,6 @@ const SalesPage = () => {
   }, []);
 
   const isValidListItems = useCallback(() => {
-    console.log(`isValidListItems:`, listItems)
-    // listItems.forEach(item => {
-    //   if (item.product && item.count && item.count == 0) {
-    //     return false
-    //   }
-    // })
-    // return true
-
     const invalidList = listItems.some(item => item.product && (!item.count || item.count === 0))
     const validList = listItems.some(item => item.product && item.count && item.count !== 0)
     return !invalidList && validList
@@ -110,10 +102,8 @@ const SalesPage = () => {
     <div>
       <SalesTable
         ref={salesTableRef}
-        // numLine={countLine}
         paymentType={paymentType}
         onChangeItems={(list) => {
-          // console.log(`onChangeItems:`, list)
           setListItems(list)
         }}
       />
@@ -155,7 +145,6 @@ const SalesPage = () => {
           color='blue'
           onClick={() => {
             handleSaveAndPrint()
-            // setUserModalOpen(true)
           }}
 
         >
@@ -170,16 +159,12 @@ const SalesPage = () => {
       subtitle={userModalSubtitle}
       positiveBtnText={userModalPositiveBtn}
       negativeBtnText={userModalNegativeBtn}
-      // neutralBtnText='Neutro'
       onPositiveBtn={() => {
         setUserModalOpen(false)
       }}
       onNegativeBtn={() => {
         setUserModalOpen(false)
       }}
-    // onNeutralBtn={() => {
-    //   setUserModalOpen(false)
-    // }}
     />
   </>
 }

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, Dropdown, Grid, Input } from 'semantic-ui-react';
 import './BalanceTableHeader.scss';
 import { format } from 'date-fns';
@@ -18,6 +18,8 @@ const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
 }));
 
 interface BalanceTableHeaderProps {
+  initialDate?: string,
+  finalDate?: string,
   onChangeClient?: (string) => void;
   onChangeSalesMan?: (string) => void;
   onChangeProduct?: (string) => void;
@@ -28,6 +30,8 @@ interface BalanceTableHeaderProps {
 }
 
 const BalanceTableHeader = ({
+  initialDate,
+  finalDate,
   onChangeClient = () => { },
   onChangeSalesMan = () => { },
   onChangeProduct = () => { },
@@ -37,13 +41,13 @@ const BalanceTableHeader = ({
   onSearch = () => { },
 }: BalanceTableHeaderProps) => {
 
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
-  const [endDate, setEndDate] = useState(new Date().toISOString().slice(0, 10));
+  const dateNow = format(new Date(), "yyyy-MM-dd");
+
+  const [startDate, setStartDate] = useState(initialDate ?? dateNow);
+  const [endDate, setEndDate] = useState(finalDate ?? dateNow);
   const [errorDate, setErrorDate] = useState('');
 
   const handleChangeDates = useCallback(() => {
-
-    console.log(`handleChangeDates::${startDate}:${endDate}`)
     if (startDate > endDate) {
       setErrorDate('Data inicial maior que data final')
     } else {
@@ -59,76 +63,6 @@ const BalanceTableHeader = ({
   return (
     <div className="bth_grid_content">
       <Grid>
-
-        {/* <Grid.Row className="bth_grid_row" >
-          <Grid.Column
-            width={2}
-            textAlign='right'
-            verticalAlign='middle'>
-            <div className="bth_grid_text">
-              Cliente:
-            </div>
-          </Grid.Column>
-
-          <Grid.Column
-            width={6}>
-            <Input
-              placeholder="Nome do cliente"
-              fluid
-              onChange={(event) => {
-                onChangeClient(event.target.value)
-              }}
-            />
-          </Grid.Column>
-
-          <Grid.Column
-            width={1}
-            verticalAlign='middle'>
-            <div className="bth_grid_text">
-              Período:
-            </div>
-          </Grid.Column>
-          <Grid.Column
-            width={3}
-            verticalAlign='middle'>
-            <Input
-              className="bth_grid_input_date"
-              type='date'
-              value={startDate}
-              onChange={(event) => {
-                setErrorDate("")
-                setStartDate(event.target.value)
-              }}
-            />
-          </Grid.Column>
-          <Grid.Column
-            width={1}
-            color='red'
-            textAlign='center'
-            verticalAlign='middle'>
-            <div className="bth_grid_text">
-              à
-            </div>
-          </Grid.Column>
-
-          <Grid.Column
-            width={3}
-            verticalAlign='middle'>
-
-            <Input
-              className="bth_grid_input_date"
-              type='date'
-              value={endDate}
-              onChange={(event) => {
-                setErrorDate("")
-                setEndDate(event.target.value)
-              }}
-            />
-          </Grid.Column>
-        </Grid.Row> */}
-
-
-
         <Grid.Row className="bth_grid_row" >
           <Grid.Column
             width={2}
@@ -150,7 +84,6 @@ const BalanceTableHeader = ({
             />
           </Grid.Column>
 
-          {/* // */}
           <Grid.Column width={1} />
           <Grid.Column
             width={7}
@@ -212,6 +145,7 @@ const BalanceTableHeader = ({
               }}
             />
           </Grid.Column>
+
           <Grid.Column width={4} />
 
           <Grid.Column
@@ -238,9 +172,7 @@ const BalanceTableHeader = ({
           </Grid.Column>
         </Grid.Row>
 
-        {/* // */}
         <Grid.Row className="bth_grid_row">
-
           <Grid.Column
             width={2}
             textAlign='right'

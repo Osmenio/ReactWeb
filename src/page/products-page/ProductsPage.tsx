@@ -106,7 +106,7 @@ const ProductsPage = () => {
           handleEditProduct()
         }}
         onDelete={() => {
-          setUserModalSubtitle("Deseja deletar esse produto?")
+          setUserModalSubtitle("Deseja deletar esse produto?\nEssa ação não pode ser desfeita.")
           setUserModalPositiveBtn("Deletar")
           setUserModalNegativeBtn("Cancelar")
           setUserModalOpen(true)

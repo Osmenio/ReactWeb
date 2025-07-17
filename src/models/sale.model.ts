@@ -9,5 +9,6 @@ export interface SaleModel {
     paymentType: PaymentTypeEnum;
     date: string;
     time: string;
+    timestamp: number;
     itemsSale: ItemSaleModel[];
 }

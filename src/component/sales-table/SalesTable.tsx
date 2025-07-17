@@ -10,7 +10,6 @@ import { decimalFormat } from '../../utils/format-utils';
 
 interface ItemSale extends ItemSaleModel {
   idx: number;
-  // idRow: number;
   discountStr?: string;
   itemProduct?: ProductModel;
 }
@@ -33,6 +32,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
   useImperativeHandle(ref, () => ({
     clearList() {
       setListProduct([]);
+      handleCalculateTotals();
     },
     updateNumLines(isAdd: boolean) {
       handleNumLines(isAdd);
@@ -119,53 +119,17 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
     });
   }, []);
 
-  const handleCalculateSubtotal = useCallback((idx: number) => {
-    setListProduct(prev =>
-      prev.map(item => {
-        if (item.idx !== idx) return item;
-
-        // if (!item.product) {
-        if (!item.itemProduct) {
-          return { ...item, subtotal: undefined };
-        }
-
-        let price = 0
-        switch (paymentType) {
-          case PaymentTypeEnum.Pix:
-            price = item.itemProduct.priceOne
-            break;
-          case PaymentTypeEnum.Debit:
-            price = item.itemProduct.priceTwo
-            break;
-          default:
-            price = item.itemProduct.priceThree
-        }
-
-        const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0);
-
-        return { ...item, subtotal, unitPrice: price };
-      })
-    );
-  }, [paymentType]);
-
   const handleOnChangeListProduct = () => {
     const list = listProduct
-      // .filter(item => item.product !== undefined && item.count !== undefined)
+      .filter(item => item.product !== undefined && item.count !== undefined)
       .map(({ idx, discountStr, ...rest }) => rest);
     onChangeItems(list)
   };
 
-  useEffect(() => {
-    const result = listProduct.reduce((acc, prev) => {
-      return acc + (prev.subtotal ?? 0)
-    }, 0)
-    setTotal(result)
-    handleOnChangeListProduct()
-  }, [listProduct]);
-
-  useEffect(() => {
-    setListProduct(prev =>
-      prev.map(item => {
+  const handleCalculateTotals = useCallback(() => {
+    setListProduct(prev => {
+      let total = 0
+      const updated = prev.map(item => {
         if (!item.itemProduct) return item
 
         let price = 0
@@ -180,15 +144,25 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
             price = item.itemProduct.priceThree
         }
         const subtotal = (price - (item.discount ?? 0)) * (item.count ?? 0)
-
+        total += subtotal
         return {
           ...item,
           unitPrice: price,
-          subtotal
         };
       })
-    );
+
+      setTotal(total);
+      return updated;
+    });
   }, [paymentType]);
+
+  useEffect(() => {
+    handleCalculateTotals()
+  }, [paymentType]);
+
+  useEffect(() => {
+    handleOnChangeListProduct()
+  }, [listProduct]);
 
   const products = ListProductsMock.map(item => ({
     key: item.description,
@@ -251,17 +225,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
           {[...Array(numLine)].map((value, index) => {
 
             const itemProduct = listProduct.find(p => p.idx === index);
-            let itemPrice: number | undefined
-            switch (paymentType) {
-              case PaymentTypeEnum.Pix:
-                itemPrice = itemProduct?.itemProduct?.priceOne
-                break;
-              case PaymentTypeEnum.Debit:
-                itemPrice = itemProduct?.itemProduct?.priceTwo
-                break;
-              default:
-                itemPrice = itemProduct?.itemProduct?.priceThree
-            }
+            const subtotal = ((itemProduct?.unitPrice ?? 0) - (itemProduct?.discount ?? 0)) * (itemProduct?.count ?? 0)
 
             return (<TableRow
               key={index}
@@ -281,7 +245,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                   }}
                   onChange={(event) => {
                     handleCountItem(index, Number(event.target.value.replace(/\D/g, '')))
-                    handleCalculateSubtotal(index)
+                    handleCalculateTotals()
                   }}
                 ></Input>
               </TableCell>
@@ -301,7 +265,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                     value={itemProduct?.itemProduct?.description ?? ""}
                     onChange={(_, data) => {
                       handleSelectItem(index, String(data.value))
-                      handleCalculateSubtotal(index)
+                      handleCalculateTotals()
                     }}
                   />
 
@@ -312,16 +276,14 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                       size="lg"
                       onClick={() => {
                         handleRemoveItem(index)
-                        handleCalculateSubtotal(index)
+                        handleCalculateTotals()
                       }}
                     />
                   }
                 </div>
               </TableCell>
               <TableCell textAlign='center' >
-                {
-                  itemProduct?.product && itemPrice && decimalFormat(itemPrice)
-                }
+                {itemProduct?.product && itemProduct?.unitPrice && decimalFormat(itemProduct?.unitPrice)}
               </TableCell>
               <TableCell textAlign='center' >
                 <Input
@@ -346,19 +308,19 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                   }}
                   onChange={(event) => {
                     handleDiscountItem(index, event.target.value);
-                    handleCalculateSubtotal(index);
+                    handleCalculateTotals()
                   }}
                   onBlur={(event) => {
                     const value = parseFloat(event.target.value.replace(',', '.'));
                     if (!isNaN(value)) {
                       handleDiscountItem(index, value.toFixed(2).replace('.', ','));
-                      handleCalculateSubtotal(index);
+                      handleCalculateTotals()
                     }
                   }}
                 ></Input>
               </TableCell>
               <TableCell textAlign='center' >
-                {itemProduct?.subtotal && decimalFormat(itemProduct?.subtotal)}
+                {subtotal != 0 && decimalFormat(subtotal)}
               </TableCell>
             </TableRow>)
           })}

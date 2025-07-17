@@ -24,25 +24,13 @@ const UserModal = ({
   onNegativeBtn = () => { },
   onNeutralBtn = () => { },
 }: UserModalProps) => {
-  // const title = success ? 'Sucesso' : 'Erro';
 
   return (
     <Modal
-      // onClose={onClose}
       open={open}
       className='user_modal'
     >
-      {/* <Modal.Header>{title}</Modal.Header>
-      <Modal.Content>{subtitle}</Modal.Content> */}
-      {/* <Modal.Content>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
-      </Modal.Content> */}
-      {/* <Modal.Actions>
-        <Button
-          onClick={onClose}>
-          Fechar
-        </Button>
-      </Modal.Actions> */}
+
 
       <div className="user_modal_title">
         {title}

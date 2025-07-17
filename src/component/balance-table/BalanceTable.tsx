@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ItemBalance } from '../../page/balance-page/BalancePage';
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 
 interface BalanceTableProps {
   items: ItemBalance[];
@@ -31,14 +32,12 @@ const BalanceTable = ({
     let totalSale = 0
     let totaldDiscount = 0
     let totalSubSale = 0
-    // let totalDiff = 0
     items.forEach(item => {
       totalCount += item.count
       totalBuy += item.buyPrice
       totalSubBuy += (item.count * item.buyPrice)
       totalSale += item.unitPrice
       totaldDiscount += item.discount
-      // totalSubSale += ((item.unitPrice - item.discount) * item.count)
       totalSubSale += (item.count * (item.unitPrice - item.discount))
     })
 
@@ -51,7 +50,6 @@ const BalanceTable = ({
     setTotalDiff(totalSubSale - totalSubBuy)
   }, [items]);
 
-
   return (
     <div className="bt_table_content">
       <Table
@@ -59,17 +57,14 @@ const BalanceTable = ({
         celled
       >
 
-        <TableHeader
-        >
+        <TableHeader>
           <TableRow
-            // className="bt_table_header_resume"
             active
           >
             <TableHeaderCell
               className="bt_table_header_resume"
               colSpan="3"
               textAlign='center'
-            // error
             >
               Resumo
             </TableHeaderCell>
@@ -123,9 +118,7 @@ const BalanceTable = ({
           </TableRow>
         </TableHeader>
 
-        <TableHeader
-        // fullWidth={true}
-        >
+        <TableHeader>
           <TableRow>
             <TableHeaderCell
               width={1}
@@ -226,10 +219,7 @@ const BalanceTable = ({
 
         <TableBody>
           {
-            // listItemBalance?.map((item, index) => {
             items?.map((item, index) => {
-              //   return sale.itemsSale.map((itemsale, index) => {
-
               const buySubtotal = (item.count ?? 0) * (item.buyPrice ?? 0)
               const saleSubtotal = (item.count ?? 0) * ((item.unitPrice ?? 0) - (item.discount ?? 0))
               const totalDiff = saleSubtotal - buySubtotal
@@ -240,14 +230,14 @@ const BalanceTable = ({
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {item.date}
+                    {format(new Date(item.timestamp), 'dd/MM/yyyy')}
                   </TableCell>
 
                   <TableCell
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {item.time}
+                    {format(new Date(item.timestamp), 'HH:mm')}
                   </TableCell>
 
                   <TableCell
@@ -310,7 +300,7 @@ const BalanceTable = ({
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {item.discount}
+                    {item.discount > 0 ? decimalFormat(item.discount) : "-"}
                   </TableCell>
 
                   <TableCell
@@ -321,7 +311,8 @@ const BalanceTable = ({
                   </TableCell>
 
                   <TableCell
-                    className="bt_table_cell"
+                    // className="bt_table_cell"
+                    className={totalDiff > 0 ? "bt_table_cell" : "bt_table_cell_red"}
                     textAlign='center'
                   >
                     {decimalFormat(totalDiff)}
