@@ -54,7 +54,7 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
               width={2}
               textAlign='center'
             >
-              Situação
+              Status
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"

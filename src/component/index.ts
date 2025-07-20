@@ -1,5 +1,6 @@
 export * from './balance-table/BalanceTable';
 export * from './balance-table-header/BalanceTableHeader';
+export * from './info-modal/InfoModal';
 export * from './login-modal/LoginModal';
 export * from './product-modal/ProductModal';
 export * from './products-table/ProductsTable';
@@ -9,4 +10,4 @@ export * from './side-menu/SideMenu';
 export * from './text-input/TextInput';
 export * from './top-header/TopHeader';
 export * from './top-page-title/TopPageTitle';
-export * from './user-modal/UserModal';
+export * from './user-table/UserTable';

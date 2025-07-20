@@ -61,6 +61,12 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
         <nav className="menu-items">
           <ul>
             <li>
+              <Link to="/dashboard">
+                <FontAwesomeIcon icon={faChartColumn} />
+                <span>Dashboard</span>
+              </Link>
+            </li>
+            <li>
               <Link to="/product">
                 <FontAwesomeIcon icon={faBoxesStacked} />
                 <span>Produtos</span>
@@ -73,19 +79,13 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
               </Link>
             </li>
             <li>
-              <Link to="/dashboard">
-                <FontAwesomeIcon icon={faChartColumn} />
-                <span>Dashboard</span>
-              </Link>
-            </li>
-            <li>
               <Link to="/balance">
                 <FontAwesomeIcon icon={faCalculator} />
                 <span>Balanço</span>
               </Link>
             </li>
             <li>
-              <Link to="/dashboard">
+              <Link to="/user">
                 <FontAwesomeIcon icon={faUsers} />
                 <span>Usuários</span>
               </Link>

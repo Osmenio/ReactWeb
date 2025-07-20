@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ProductModal, ProductsTable, TopPageTitle, UserModal } from '../../component';
+import { InfoModal, ProductModal, ProductsTable, TopPageTitle } from '../../component';
 import { faBoxesStacked } from '@fortawesome/free-solid-svg-icons/faBoxesStacked';
 import { ListProductsMock } from '../../mock/product.mock';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
@@ -130,24 +130,19 @@ const ProductsPage = () => {
     />
 
 
-    <UserModal
+    <InfoModal
       open={userModalOpen}
       title='Atenção'
       subtitle={userModalSubtitle}
       positiveBtnText={userModalPositiveBtn}
       negativeBtnText={userModalNegativeBtn}
-      // neutralBtnText='Neutro'
       onPositiveBtn={() => {
         setUserModalOpen(false)
       }}
       onNegativeBtn={() => {
         setUserModalOpen(false)
       }}
-    // onNeutralBtn={() => {
-    //   setUserModalOpen(false)
-    // }}
     />
-
   </>
 }
 
