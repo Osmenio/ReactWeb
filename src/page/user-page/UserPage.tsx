@@ -3,9 +3,17 @@ import { InfoModal, TopPageTitle, UserTable } from '../../component';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import "./UserPage.scss"
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { UserModel, UserStatusEnum } from '../../models';
-import { ListUserMock } from '../../mock/user.mock';
+import { UserModel, UserProfileEnum, UserStatusEnum } from '../../models';
 import { UserModal } from '../../component/user-modal/UserModal';
+import { UserService } from '../../services';
+import { useSessionContext } from '../../providers';
+
+enum UserActionEnum {
+  None,
+  Add,
+  Update,
+  // Reset,
+}
 
 const productStatus = Object.entries(UserStatusEnum).map(([key, value]) => ({
   key: key,
@@ -14,10 +22,12 @@ const productStatus = Object.entries(UserStatusEnum).map(([key, value]) => ({
 }));
 
 const UserPage = () => {
+  const { session } = useSessionContext();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<UserStatusEnum>();
-  const [listUser, setListUser] = useState<UserModel[]>(ListUserMock);
+  const [listUser, setListUser] = useState<UserModel[]>([]);
+  const [listUserFilter, setListUserFilter] = useState<UserModel[]>([]);
 
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [userModalPositiveBtn, setUserModalPositiveBtn] = useState('');
@@ -29,27 +39,100 @@ const UserPage = () => {
   const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
   const [editUser, setEditUser] = useState<UserModel | undefined>();
+  const [action, setAction] = useState(UserActionEnum.None);
 
   const handleFilterProducts = useCallback(() => {
     const list = (search.trim() === "" && !status)
-      ? ListUserMock
-      : ListUserMock.filter(p => {
+      ? listUser
+      : listUser.filter(p => {
         const matchDescription = search.trim() === "" || p.name.toLowerCase().includes(search.toLowerCase());
         const matchStatus = !status || p.status === status;
         return matchDescription && matchStatus;
       });
-    setListUser(list)
-  }, [search, status]);
+    setListUserFilter(list)
+  }, [listUser, search, status]);
 
-  const handleEditProduct = useCallback(() => {
-    setUserModalPositiveBtn("Salvar")
-    setUserModalNegativeBtn("Cancelar")
-    setUserModalOpen(true)
-  }, []);
+  // const handleEditProduct = useCallback(() => {
+  //   setUserModalPositiveBtn("Salvar")
+  //   setUserModalNegativeBtn("Cancelar")
+  //   setUserModalOpen(true)
+  // }, []);
+
+  const getAllUsers = async () => {
+    const { users, error } = await UserService.getAllUser();
+    if (error) {
+      console.log(`getAllUsers`, error)
+      setAction(UserActionEnum.None)
+      setInfoModalSubtitle(`Falha ao carregar os dados de usuários`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      const listAll = users.map((item): UserModel => ({
+        id: item.id,
+        name: item.name,
+        login: item.login,
+        password: item.password,
+        profile: item.profile as UserProfileEnum,
+        status: item.status as UserStatusEnum,
+      }));
+      const list = filterAdm(listAll.sort((a, b) => a.name.localeCompare(b.name)))
+      setListUser(list || []);
+      setListUserFilter(list || []);
+    }
+  };
+
+  const addUser = async (user: UserModel) => {
+    const newUser = {
+      ...user,
+      password: "123",
+      status: UserStatusEnum.FirstAccess
+    }
+    const error = await UserService.addUser(newUser);
+    if (error) {
+      console.log(`addUser`, error)
+      setAction(UserActionEnum.None)
+      setInfoModalSubtitle(`Falha ao salvar o usuário`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    }
+    getAllUsers()
+  };
+
+  const updateUser = async (user: UserModel) => {
+    const { error } = await UserService.updateUser(user);
+    if (error) {
+      console.log(`updateUser:`, error)
+      setAction(UserActionEnum.None)
+      setInfoModalSubtitle(`Falha ao atualizar o usuário`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    }
+    getAllUsers()
+  };
+
+  const resetUser = async (user: UserModel) => {
+    const { error } = await UserService.updateUser(user);
+    if (error) {
+      console.log(`updateUser:`, error)
+      setAction(UserActionEnum.None)
+      setInfoModalSubtitle(`Falha ao atualizar o usuário`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    }
+    getAllUsers()
+  };
+
+  const filterAdm = (users: UserModel[]) => {
+    return users.filter(p => p.name !== "Adm")
+  }
 
   useEffect(() => {
     handleFilterProducts();
   }, [search, status]);
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
 
   return <>
     <TopPageTitle
@@ -86,7 +169,7 @@ const UserPage = () => {
         className="products_button"
         color='blue'
         onClick={() => {
-          setEditUser(undefined)
+          setAction(UserActionEnum.Add)
           setUserModalPositiveBtn("Salvar")
           setUserModalNegativeBtn("Cancelar")
           setUserModalOpen(true)
@@ -98,30 +181,54 @@ const UserPage = () => {
 
     <div>
       <UserTable
-        items={listUser}
+        items={listUserFilter}
         onEdit={(item) => {
+          setAction(UserActionEnum.Update)
           setEditUser(item)
-          handleEditProduct()
+          setUserModalPositiveBtn("Salvar")
+          setUserModalNegativeBtn("Cancelar")
+          setUserModalOpen(true)
         }}
-        onBlock={(item) => {
-          const sts = item.status == UserStatusEnum.Inactive ? UserStatusEnum.FirstAccess : UserStatusEnum.Inactive
-          setInfoModalSubtitle(`Deseja alterar o status desse usuário para ${sts}?`)
-          setInfoModalPositiveBtn("Alterar")
+        onChangeStatus={(item) => {
+          setEditUser(item)
+          setAction(UserActionEnum.Update)
+          if (item.login === session.user?.login) {
+            setInfoModalSubtitle(`Deseja resetar a senha desse usuário?`)
+            setInfoModalPositiveBtn("Alterar")
+          } else {
+            const sts = item.status === UserStatusEnum.Inactive ? UserStatusEnum.FirstAccess : UserStatusEnum.Inactive
+            const msg = sts === UserStatusEnum.Inactive ? "" : "\nIsso resetará a senha."
+            setInfoModalSubtitle(`Deseja alterar o status desse usuário para ${sts}?${msg}`)
+            setInfoModalPositiveBtn("Alterar")
+          }
           setInfoModalNegativeBtn("Cancelar")
           setInfoModalOpen(true)
         }}
+      // onChangePassword={(item) => {
+      //   setEditUser(item)
+      //   setAction(UserActionEnum.Reset)
+      //   setInfoModalSubtitle(`Deseja resetar a senha desse usuário?`)
+      //   setInfoModalPositiveBtn("Resetar")
+      //   setInfoModalNegativeBtn("Cancelar")
+      //   setInfoModalOpen(true)
+      // }}
       />
     </div>
 
     <UserModal
       open={userModalOpen}
-      title={editUser ? 'Editar produto' : 'Adicionar produto'}
-      item={editUser}
+      title={action === UserActionEnum.Update ? 'Editar usuário' : 'Adicionar usuário'}
+      item={action === UserActionEnum.Update ? editUser : undefined}
       positiveBtnText={userModalPositiveBtn}
       negativeBtnText={userModalNegativeBtn}
       onPositiveBtn={(item) => {
-        console.log(`item`, item)
         setUserModalOpen(false)
+        if (action === UserActionEnum.Add) {
+          addUser(item)
+        } else {
+          console.log(`UserModal:editUser`, editUser)
+          updateUser(item)
+        }
       }}
       onNegativeBtn={() => {
         setUserModalOpen(false)
@@ -136,6 +243,23 @@ const UserPage = () => {
       negativeBtnText={infoModalNegativeBtn}
       onPositiveBtn={() => {
         setInfoModalOpen(false)
+        if (action === UserActionEnum.Update && editUser) {
+          if (editUser.login === session.user?.login) {
+            console.log(`FirstAccess`, editUser)
+            updateUser({
+              ...editUser,
+              password: "123",
+              status: UserStatusEnum.FirstAccess
+            })
+          } else {
+            console.log(`Inactive`, editUser)
+            updateUser({
+              ...editUser,
+              password: editUser.status === UserStatusEnum.Inactive ? "123" : editUser.password,
+              status: editUser.status === UserStatusEnum.Inactive ? UserStatusEnum.FirstAccess : UserStatusEnum.Inactive
+            })
+          }
+        }
       }}
       onNegativeBtn={() => {
         setInfoModalOpen(false)

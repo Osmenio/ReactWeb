@@ -1,22 +1,25 @@
 import { forwardRef } from 'react';
-import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
+import { Popup, Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
 import './UserTable.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLock, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faCheckDouble, faKey, faPen } from '@fortawesome/free-solid-svg-icons';
 import { UserModel, UserStatusEnum } from '../../models';
+import { useSessionContext } from '../../providers';
 
 interface UserTableProps {
   items: UserModel[];
   onEdit?: (item: UserModel) => void;
-  onBlock?: (item: UserModel) => void;
+  onChangeStatus?: (item: UserModel) => void;
 }
 
 const UserTable = forwardRef((props: UserTableProps, ref) => {
   const {
     items,
     onEdit = () => { },
-    onBlock = () => { },
+    onChangeStatus = () => { },
   } = props;
+
+  const { session } = useSessionContext();
 
   const getStatusColor = (status: UserStatusEnum): string => {
     switch (status) {
@@ -36,9 +39,16 @@ const UserTable = forwardRef((props: UserTableProps, ref) => {
           <TableRow>
             <TableHeaderCell
               className="table_header"
-              width={6}
+              width={3}
             >
               Usuário
+            </TableHeaderCell>
+            <TableHeaderCell
+              className="table_header"
+              width={3}
+              textAlign='center'
+            >
+              Login
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
@@ -60,9 +70,7 @@ const UserTable = forwardRef((props: UserTableProps, ref) => {
               width={3}
               textAlign='center'
             >
-              <>
-                Ações
-              </>
+              Ações
             </TableHeaderCell>
           </TableRow>
         </TableHeader>
@@ -70,11 +78,19 @@ const UserTable = forwardRef((props: UserTableProps, ref) => {
         <TableBody>
           {items.map((item, index) => {
 
+            const isActive = item.status === UserStatusEnum.Active || item.status === UserStatusEnum.FirstAccess
+            const msg = item.login === session.user?.login ? 'Resetar Senha' : isActive ? 'Inativar usuário' : 'Ativar usuário'
+            const icon = item.login === session.user?.login ? faKey : isActive ? faBan : faCheckDouble
+            const iconColor = item.login === session.user?.login ? 'black' : isActive ? 'red' : 'green'
+
             return (<TableRow
               key={index}
             >
               <TableCell>
                 {item.name}
+              </TableCell>
+              <TableCell>
+                {item.login}
               </TableCell>
               <TableCell textAlign='center' >
                 {item.profile}
@@ -87,15 +103,40 @@ const UserTable = forwardRef((props: UserTableProps, ref) => {
               </TableCell>
 
               <TableCell textAlign='center' >
-                <FontAwesomeIcon
-                  icon={faPen}
-                  onClick={() => onEdit(item)} />
 
-                <FontAwesomeIcon
-                  icon={faLock}
-                  color='red'
-                  style={{ marginLeft: '10px' }}
-                  onClick={() => onBlock(item)} />
+                <Popup
+                  content='Editar usuário'
+                  position='bottom center'
+                  trigger={
+                    <FontAwesomeIcon
+                      icon={faPen}
+                      color={item.login === session.user?.login ? 'gray' : 'black'}
+                      onClick={() => {
+                        if (item.login !== session.user?.login) onEdit(item)
+                      }} />
+                  } />
+
+                <Popup
+                  content={msg}
+                  position='bottom center'
+                  trigger={
+                    <FontAwesomeIcon
+                      icon={icon}
+                      color={iconColor}
+                      style={{ marginLeft: '10px' }}
+                      onClick={() => onChangeStatus(item)} />
+                  } />
+
+                {/* <Popup
+                  content={isActive ? 'Inativar usuário' : 'Ativar usuário'}
+                  position='bottom center'
+                  trigger={
+                    <FontAwesomeIcon
+                      icon={isActive ? faBan : faCheckDouble}
+                      color={isActive ? 'red' : 'green'}
+                      style={{ marginLeft: '10px' }}
+                      onClick={() => onChangeStatus(item)} />
+                  } /> */}
               </TableCell>
             </TableRow>)
           })}

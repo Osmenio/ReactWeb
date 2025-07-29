@@ -30,15 +30,18 @@ const UserModal = ({
 }: UserModalProps) => {
 
   const [name, setName] = useState("");
+  const [login, setLogin] = useState("");
   const [profile, setProfile] = useState<UserProfileEnum | undefined>();
   const [status, setStatus] = useState<UserStatusEnum | undefined>();
 
   const [errorName, setErrorName] = useState("");
+  const [errorLogin, setErrorLogin] = useState("");
   const [errorProfile, setErrorProfile] = useState("");
 
   useEffect(() => {
     if (open) {
       setName(item?.name?.trim() || "");
+      setLogin(item?.login?.trim() || "");
       setProfile(item?.profile || undefined)
       setStatus(item?.status || undefined)
     }
@@ -47,13 +50,15 @@ const UserModal = ({
   const handleSave = useCallback(() => {
     if (isValidFields()) {
       onPositiveBtn({
+        ...(item?.id && { id: item.id }),
         name,
+        login,
         profile,
         status,
       })
       cleanAll()
     }
-  }, [name, profile]);
+  }, [name, login, profile, status]);
 
   const isValidFields = useCallback(() => {
     const error = "Campo obrigatório"
@@ -63,19 +68,25 @@ const UserModal = ({
       setErrorName(error)
       isValid = false
     }
+    if (login.trim() === "") {
+      setErrorLogin(error)
+      isValid = false
+    }
     if (profile === undefined) {
       setErrorProfile(error)
       isValid = false
     }
     return isValid;
-  }, [name, profile]);
+  }, [name, login, profile]);
 
   const cleanAll = () => {
     setName("")
+    setLogin("")
     setProfile(undefined)
     setStatus(undefined)
 
     setErrorName("")
+    setErrorLogin("")
     setErrorProfile("")
   };
 
@@ -91,7 +102,7 @@ const UserModal = ({
 
         <div>
           <div>
-            Usuário:
+            Usuário *
           </div>
           <Input
             style={{ marginTop: '5px' }}
@@ -109,7 +120,25 @@ const UserModal = ({
           </div>}
 
           <div style={{ marginTop: '20px' }}>
-            Perfil:
+            Login *
+          </div>
+          <Input
+            style={{ marginTop: '5px' }}
+            fluid
+            value={login}
+            error={errorLogin.trim() !== ""}
+            placeholder="Login"
+            onChange={(event) => {
+              setLogin(event.target.value)
+              setErrorLogin("")
+            }}
+          />
+          {errorLogin.trim() !== "" && <div style={{ color: 'red' }}>
+            {errorLogin}
+          </div>}
+
+          <div style={{ marginTop: '20px' }}>
+            Perfil *
           </div>
           <Dropdown
             style={{ marginTop: '5px' }}
@@ -119,7 +148,6 @@ const UserModal = ({
             value={profile}
             options={userProfile}
             onChange={(_, data) => {
-              console.log(`onChange::${data.value}`)
               const profile = data.value as UserProfileEnum
               setProfile(profile)
               setErrorProfile("")

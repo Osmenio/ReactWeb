@@ -4,9 +4,10 @@ import './ProductsTable.scss';
 import { ListProductsMock } from '../../mock/product.mock';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { ProductModel } from '../../models';
+import { ProductModel, UserProfileEnum } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
 import { ProductStatusEnum } from '../../models/product-status.enum';
+import { useSessionContext } from '../../providers';
 
 interface ProductsTableProps {
   items: ProductModel[];
@@ -15,6 +16,8 @@ interface ProductsTableProps {
 }
 
 const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
+  const { session } = useSessionContext();
+  
   const {
     items,
     onEdit = () => { },
@@ -48,7 +51,7 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
               width={6}
             >
               Produtos
-              </TableHeaderCell>
+            </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
               width={2}
@@ -56,50 +59,43 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
             >
               Status
             </TableHeaderCell>
+
+            {session?.user?.profile == UserProfileEnum.Admin &&
+              <TableHeaderCell
+                className="table_header"
+                width={1}
+                textAlign='center'
+              >
+                <>Valor<br />Compra</>
+              </TableHeaderCell>
+            }
             <TableHeaderCell
               className="table_header"
               width={1}
               textAlign='center'
             >
-              <>
-                Valor<br />Compra
-              </>
+              <>Valor <br />Pix</>
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
               width={1}
               textAlign='center'
             >
-              <>
-                Valor <br />Pix
-              </>
+              <>Valor <br /> Débito</>
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
               width={1}
               textAlign='center'
             >
-              <>
-                Valor <br /> Débito
-              </>
+              <>Valor <br /> Crédito</>
             </TableHeaderCell>
             <TableHeaderCell
               className="table_header"
               width={1}
               textAlign='center'
             >
-              <>
-                Valor <br /> Crédito
-              </>
-            </TableHeaderCell>
-            <TableHeaderCell
-              className="table_header"
-              width={1}
-              textAlign='center'
-            >
-              <>
-                Ações
-              </>
+              <>Ações</>
             </TableHeaderCell>
           </TableRow>
         </TableHeader>
@@ -107,45 +103,50 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
         <TableBody>
           {items.map((item, index) => {
 
-            return (<TableRow
-              key={index}
-            >
-              <TableCell>
-                {item.description}
-              </TableCell>
-              <TableCell
-                textAlign='center'
-                style={{ color: getStatusColor(item.status) }}
+            return (
+              <TableRow
+                key={index}
               >
-                {item.status}
-              </TableCell>
-              <TableCell textAlign='center' >
-                {decimalFormat(item.buyPrice)}
-              </TableCell>
-              <TableCell textAlign='center' >
-                {decimalFormat(item.priceOne)}
-              </TableCell>
-              <TableCell textAlign='center' >
-                {decimalFormat(item.priceTwo)}
-              </TableCell>
-              <TableCell textAlign='center' >
-                {decimalFormat(item.priceThree)}
-              </TableCell>
-              <TableCell textAlign='center' >
+                <TableCell>
+                  {item.description}
+                </TableCell>
+                <TableCell
+                  textAlign='center'
+                  style={{ color: getStatusColor(item.status) }}
+                >
+                  {item.status}
+                </TableCell>
 
-                <FontAwesomeIcon
-                  icon={faPen}
-                  onClick={() => onEdit(item)} />
+                {session?.user?.profile == UserProfileEnum.Admin &&
+                  <TableCell textAlign='center' >
+                    {decimalFormat(item.buyPrice)}
+                  </TableCell>
+                }
 
-                <FontAwesomeIcon
-                  icon={faTrash}
-                  color='red'
-                  style={{ marginLeft: '10px' }}
-                  onClick={() => onDelete(item)} />
+                <TableCell textAlign='center' >
+                  {decimalFormat(item.priceOne)}
+                </TableCell>
+                <TableCell textAlign='center' >
+                  {decimalFormat(item.priceTwo)}
+                </TableCell>
+                <TableCell textAlign='center' >
+                  {decimalFormat(item.priceThree)}
+                </TableCell>
+                <TableCell textAlign='center' >
 
-              </TableCell>
+                  <FontAwesomeIcon
+                    icon={faPen}
+                    onClick={() => onEdit(item)} />
 
-            </TableRow>)
+                  <FontAwesomeIcon
+                    icon={faTrash}
+                    color='red'
+                    style={{ marginLeft: '10px' }}
+                    onClick={() => onDelete(item)} />
+
+                </TableCell>
+              </TableRow>
+            )
           })}
         </TableBody>
       </Table>
@@ -154,4 +155,3 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
 });
 
 export { ProductsTable };
-
