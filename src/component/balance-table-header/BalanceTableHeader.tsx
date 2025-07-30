@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Dropdown, Grid, Input } from 'semantic-ui-react';
 import './BalanceTableHeader.scss';
 import { format } from 'date-fns';
-import { PaymentTypeEnum } from '../../models/payment-type.enum';
+import { PaymentTypeEnum } from '../../models/PaymentTypeEnum';
 
 const SALESMAN_MOCK = ["Carlos", "Ingrid", "Roberto", "Marcia"]
 const salesmanOptions = Object.entries(SALESMAN_MOCK).map(([key, value]) => ({

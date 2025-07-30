@@ -1,5 +1,5 @@
-import { ItemSaleModel } from "./item-sale.model";
-import { PaymentTypeEnum } from "./payment-type.enum";
+import { ItemSaleModel } from "./ItemSaleModel";
+import { PaymentTypeEnum } from "./PaymentTypeEnum";
 
 export interface SaleModel {
     id: number;

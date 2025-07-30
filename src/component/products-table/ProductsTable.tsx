@@ -1,12 +1,11 @@
 import { forwardRef } from 'react';
 import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
 import './ProductsTable.scss';
-import { ListProductsMock } from '../../mock/product.mock';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { ProductModel, UserProfileEnum } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
-import { ProductStatusEnum } from '../../models/product-status.enum';
+import { ProductStatusEnum } from '../../models/ProductStatusEnum';
 import { useSessionContext } from '../../providers';
 
 interface ProductsTableProps {
@@ -17,18 +16,12 @@ interface ProductsTableProps {
 
 const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
   const { session } = useSessionContext();
-  
+
   const {
     items,
     onEdit = () => { },
     onDelete = () => { },
   } = props;
-
-  const products = ListProductsMock.map(item => ({
-    key: item.description,
-    value: item.description,
-    text: item.description,
-  }));
 
   const getStatusColor = (status: ProductStatusEnum): string => {
     switch (status) {
@@ -90,64 +83,68 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
             >
               <>Valor <br /> Crédito</>
             </TableHeaderCell>
-            <TableHeaderCell
-              className="table_header"
-              width={1}
-              textAlign='center'
-            >
-              <>Ações</>
-            </TableHeaderCell>
+
+            {session?.user?.profile == UserProfileEnum.Admin &&
+              <TableHeaderCell
+                className="table_header"
+                width={1}
+                textAlign='center'
+              >
+                <>Ações</>
+              </TableHeaderCell>
+            }
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {items.map((item, index) => {
+          {items.sort((a, b) => a.description.localeCompare(b.description))
+            .map((item, index) => {
 
-            return (
-              <TableRow
-                key={index}
-              >
-                <TableCell>
-                  {item.description}
-                </TableCell>
-                <TableCell
-                  textAlign='center'
-                  style={{ color: getStatusColor(item.status) }}
+              return (
+                <TableRow
+                  key={index}
                 >
-                  {item.status}
-                </TableCell>
-
-                {session?.user?.profile == UserProfileEnum.Admin &&
-                  <TableCell textAlign='center' >
-                    {decimalFormat(item.buyPrice)}
+                  <TableCell>
+                    {item.description}
                   </TableCell>
-                }
+                  <TableCell
+                    textAlign='center'
+                    style={{ color: getStatusColor(item.status) }}
+                  >
+                    {item.status}
+                  </TableCell>
 
-                <TableCell textAlign='center' >
-                  {decimalFormat(item.priceOne)}
-                </TableCell>
-                <TableCell textAlign='center' >
-                  {decimalFormat(item.priceTwo)}
-                </TableCell>
-                <TableCell textAlign='center' >
-                  {decimalFormat(item.priceThree)}
-                </TableCell>
-                <TableCell textAlign='center' >
+                  {session?.user?.profile == UserProfileEnum.Admin &&
+                    <TableCell textAlign='center' >
+                      {decimalFormat(item.buyPrice)}
+                    </TableCell>
+                  }
 
-                  <FontAwesomeIcon
-                    icon={faPen}
-                    onClick={() => onEdit(item)} />
+                  <TableCell textAlign='center' >
+                    {decimalFormat(item.priceOne)}
+                  </TableCell>
+                  <TableCell textAlign='center' >
+                    {decimalFormat(item.priceTwo)}
+                  </TableCell>
+                  <TableCell textAlign='center' >
+                    {decimalFormat(item.priceThree)}
+                  </TableCell>
 
-                  <FontAwesomeIcon
-                    icon={faTrash}
-                    color='red'
-                    style={{ marginLeft: '10px' }}
-                    onClick={() => onDelete(item)} />
-
-                </TableCell>
-              </TableRow>
-            )
-          })}
+                  {session?.user?.profile == UserProfileEnum.Admin &&
+                    <TableCell textAlign='center' >
+                      <FontAwesomeIcon
+                        icon={faPen}
+                        onClick={() => onEdit(item)} />
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        color='red'
+                        style={{ marginLeft: '10px' }}
+                        onClick={() => onDelete(item)} />
+                    </TableCell>
+                  }
+                </TableRow>
+              )
+            })}
         </TableBody>
       </Table>
     </div>

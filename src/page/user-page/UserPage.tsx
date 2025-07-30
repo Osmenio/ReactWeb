@@ -3,17 +3,10 @@ import { InfoModal, TopPageTitle, UserTable } from '../../component';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import "./UserPage.scss"
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { UserModel, UserProfileEnum, UserStatusEnum } from '../../models';
+import { ActionEnum, UserModel, UserProfileEnum, UserStatusEnum } from '../../models';
 import { UserModal } from '../../component/user-modal/UserModal';
 import { UserService } from '../../services';
 import { useSessionContext } from '../../providers';
-
-enum UserActionEnum {
-  None,
-  Add,
-  Update,
-  // Reset,
-}
 
 const productStatus = Object.entries(UserStatusEnum).map(([key, value]) => ({
   key: key,
@@ -39,7 +32,7 @@ const UserPage = () => {
   const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
   const [editUser, setEditUser] = useState<UserModel | undefined>();
-  const [action, setAction] = useState(UserActionEnum.None);
+  const [action, setAction] = useState(ActionEnum.None);
 
   const handleFilterProducts = useCallback(() => {
     const list = (search.trim() === "" && !status)
@@ -52,17 +45,11 @@ const UserPage = () => {
     setListUserFilter(list)
   }, [listUser, search, status]);
 
-  // const handleEditProduct = useCallback(() => {
-  //   setUserModalPositiveBtn("Salvar")
-  //   setUserModalNegativeBtn("Cancelar")
-  //   setUserModalOpen(true)
-  // }, []);
-
   const getAllUsers = async () => {
     const { users, error } = await UserService.getAllUser();
     if (error) {
       console.log(`getAllUsers`, error)
-      setAction(UserActionEnum.None)
+      setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao carregar os dados de usuários`)
       setInfoModalPositiveBtn("Ok")
       setInfoModalOpen(true)
@@ -90,7 +77,7 @@ const UserPage = () => {
     const error = await UserService.addUser(newUser);
     if (error) {
       console.log(`addUser`, error)
-      setAction(UserActionEnum.None)
+      setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao salvar o usuário`)
       setInfoModalPositiveBtn("Ok")
       setInfoModalOpen(true)
@@ -102,7 +89,7 @@ const UserPage = () => {
     const { error } = await UserService.updateUser(user);
     if (error) {
       console.log(`updateUser:`, error)
-      setAction(UserActionEnum.None)
+      setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao atualizar o usuário`)
       setInfoModalPositiveBtn("Ok")
       setInfoModalOpen(true)
@@ -114,7 +101,7 @@ const UserPage = () => {
     const { error } = await UserService.updateUser(user);
     if (error) {
       console.log(`updateUser:`, error)
-      setAction(UserActionEnum.None)
+      setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao atualizar o usuário`)
       setInfoModalPositiveBtn("Ok")
       setInfoModalOpen(true)
@@ -169,7 +156,7 @@ const UserPage = () => {
         className="products_button"
         color='blue'
         onClick={() => {
-          setAction(UserActionEnum.Add)
+          setAction(ActionEnum.Add)
           setUserModalPositiveBtn("Salvar")
           setUserModalNegativeBtn("Cancelar")
           setUserModalOpen(true)
@@ -183,7 +170,7 @@ const UserPage = () => {
       <UserTable
         items={listUserFilter}
         onEdit={(item) => {
-          setAction(UserActionEnum.Update)
+          setAction(ActionEnum.Update)
           setEditUser(item)
           setUserModalPositiveBtn("Salvar")
           setUserModalNegativeBtn("Cancelar")
@@ -191,7 +178,7 @@ const UserPage = () => {
         }}
         onChangeStatus={(item) => {
           setEditUser(item)
-          setAction(UserActionEnum.Update)
+          setAction(ActionEnum.Update)
           if (item.login === session.user?.login) {
             setInfoModalSubtitle(`Deseja resetar a senha desse usuário?`)
             setInfoModalPositiveBtn("Alterar")
@@ -204,26 +191,18 @@ const UserPage = () => {
           setInfoModalNegativeBtn("Cancelar")
           setInfoModalOpen(true)
         }}
-      // onChangePassword={(item) => {
-      //   setEditUser(item)
-      //   setAction(UserActionEnum.Reset)
-      //   setInfoModalSubtitle(`Deseja resetar a senha desse usuário?`)
-      //   setInfoModalPositiveBtn("Resetar")
-      //   setInfoModalNegativeBtn("Cancelar")
-      //   setInfoModalOpen(true)
-      // }}
       />
     </div>
 
     <UserModal
       open={userModalOpen}
-      title={action === UserActionEnum.Update ? 'Editar usuário' : 'Adicionar usuário'}
-      item={action === UserActionEnum.Update ? editUser : undefined}
+      title={action === ActionEnum.Update ? 'Editar usuário' : 'Adicionar usuário'}
+      item={action === ActionEnum.Update ? editUser : undefined}
       positiveBtnText={userModalPositiveBtn}
       negativeBtnText={userModalNegativeBtn}
       onPositiveBtn={(item) => {
         setUserModalOpen(false)
-        if (action === UserActionEnum.Add) {
+        if (action === ActionEnum.Add) {
           addUser(item)
         } else {
           console.log(`UserModal:editUser`, editUser)
@@ -243,7 +222,7 @@ const UserPage = () => {
       negativeBtnText={infoModalNegativeBtn}
       onPositiveBtn={() => {
         setInfoModalOpen(false)
-        if (action === UserActionEnum.Update && editUser) {
+        if (action === ActionEnum.Update && editUser) {
           if (editUser.login === session.user?.login) {
             console.log(`FirstAccess`, editUser)
             updateUser({
@@ -268,6 +247,4 @@ const UserPage = () => {
   </>
 }
 
-export {
-  UserPage
-}
+export { UserPage }

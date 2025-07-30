@@ -1,5 +1,5 @@
-import { ProductStatusEnum } from "../models/product-status.enum"
-import { ProductModel } from "../models/product.model"
+import { ProductStatusEnum } from "../models/ProductStatusEnum"
+import { ProductModel } from "../models/ProductModel"
 
 export const ListProductsMock: ProductModel[] = [
     {

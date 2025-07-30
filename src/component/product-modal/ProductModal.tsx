@@ -1,14 +1,14 @@
 import { Modal, Button, Input, Dropdown, DropdownMenu, DropdownItem } from 'semantic-ui-react';
 import './ProductModal.scss';
 import { useCallback, useEffect, useState } from 'react';
-import { ProductStatusEnum } from '../../models/product-status.enum';
+import { ProductStatusEnum } from '../../models/ProductStatusEnum';
 import { ProductModel } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
 
 interface DecimalInputProps {
   value: string;
   error: string
-  onChange?: (string) => void;
+  onChange?: (string: string) => void;
 }
 const DecimalInput = ({
   value,
@@ -69,7 +69,7 @@ interface ProductModalProps {
   item?: ProductModel;
   positiveBtnText?: string;
   negativeBtnText?: string;
-  onPositiveBtn?: (ProductModel) => void;
+  onPositiveBtn?: (product: ProductModel) => void;
   onNegativeBtn?: () => void;
 }
 
@@ -108,17 +108,17 @@ const ProductModal = ({
     }
   }, [open]);
 
-  // console.log(`ProductModal::${description}:${status}:${buyPrice}:${priceOne}:${priceTwo}:${priceThree}`)
-  // console.log(`ProductModal::${item?.description}:${item?.status}:${item?.buyPrice}:${item?.priceOne}:${item?.priceTwo}:${item?.priceThree}`)
   const handleSave = useCallback(() => {
     if (isValidFields()) {
       onPositiveBtn({
-        description,
-        buyPrice,
-        priceOne,
-        priceTwo,
-        priceThree,
-        status,
+        // id: 0,
+        ...(item?.id ? { id: item.id } : {id: 0}),
+        description: description,
+        buyPrice: Number(buyPrice.replace(',', '.')),
+        priceOne: Number(priceOne.replace(',', '.')),
+        priceTwo: Number(priceTwo.replace(',', '.')),
+        priceThree: Number(priceThree.replace(',', '.')),
+        status: status as ProductStatusEnum,
       })
       cleanAll()
     }
@@ -193,7 +193,7 @@ const ProductModal = ({
 
         <div>
           <div>
-            Produto:
+            Produto
           </div>
           <Input
             style={{ marginTop: '5px' }}
@@ -211,7 +211,7 @@ const ProductModal = ({
           </div>}
 
           <div style={{ marginTop: '20px' }}>
-            Situação:
+            Situação
           </div>
           <Dropdown
             style={{ marginTop: '5px', color: getStatusColor(status ?? ProductStatusEnum.InStock) }}
@@ -254,7 +254,7 @@ const ProductModal = ({
         <div className="product_modal_grid">
           <div style={{ flex: 1 }}>
             <div >
-              Valor de Compra:
+              Valor de Compra
             </div>
             <div>
               <DecimalInput
@@ -270,7 +270,7 @@ const ProductModal = ({
 
           <div style={{ flex: 1 }}>
             <div>
-              Valor Pix:
+              Valor Pix
             </div>
             <DecimalInput
               value={priceOne}
@@ -286,7 +286,7 @@ const ProductModal = ({
         <div className="product_modal_grid">
           <div style={{ flex: 1 }}>
             <div >
-              Valor Débito:
+              Valor Débito
             </div>
             <div >
               <DecimalInput
@@ -302,7 +302,7 @@ const ProductModal = ({
 
           <div style={{ flex: 1 }}>
             <div>
-              Valor Crédito:
+              Valor Crédito
             </div>
             <DecimalInput
               value={priceThree}

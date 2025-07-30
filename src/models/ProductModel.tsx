@@ -1,4 +1,4 @@
-import { ProductStatusEnum } from "./product-status.enum";
+import { ProductStatusEnum } from "./ProductStatusEnum";
 
 export interface ProductModel {
     id: number;

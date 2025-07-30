@@ -3,9 +3,8 @@ import { InfoModal, SalesTableHeader, TopPageTitle } from '../../component';
 import { SalesTable } from '../../component/sales-table/SalesTable';
 import { Button } from 'semantic-ui-react';
 import "./SalesPage.scss"
-import { PaymentTypeEnum } from '../../models/payment-type.enum';
 import { faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons';
-import { ItemSaleModel } from '../../models';
+import { ItemSaleModel, PaymentTypeEnum } from '../../models';
 
 const SalesPage = () => {
 

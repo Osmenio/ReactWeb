@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Dropdown, Grid, Input } from 'semantic-ui-react';
 import './SalesTableHeader.scss';
 import { format } from 'date-fns';
-import { PaymentTypeEnum } from '../../models/payment-type.enum';
+import { PaymentTypeEnum } from '../../models/PaymentTypeEnum';
 
 const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
   key: key,

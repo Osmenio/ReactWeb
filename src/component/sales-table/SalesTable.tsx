@@ -2,7 +2,7 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useStat
 import { Dropdown, Input, Table, TableBody, TableCell, TableFooter, TableHeader, TableHeaderCell, TableRow } from 'semantic-ui-react';
 import './SalesTable.scss';
 import { ListProductsMock } from '../../mock/product.mock';
-import { ItemSaleModel } from '../../models/item-sale.model';
+import { ItemSaleModel } from '../../models/ItemSaleModel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { PaymentTypeEnum, ProductModel } from '../../models';

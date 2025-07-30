@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { InfoModal, ProductModal, ProductsTable, TopPageTitle } from '../../component';
 import { faBoxesStacked } from '@fortawesome/free-solid-svg-icons/faBoxesStacked';
-import { ListProductsMock } from '../../mock/product.mock';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import "./ProductsPage.scss"
-import { ProductModel } from '../../models/product.model';
-import { ProductStatusEnum } from '../../models/product-status.enum';
+import { ProductModel } from '../../models/ProductModel';
+import { useSessionContext } from '../../providers';
+import { ActionEnum, ProductStatusEnum, UserProfileEnum } from '../../models';
+import { ProductService } from '../../services';
 
 const productStatus = Object.entries(ProductStatusEnum).map(([key, value]) => ({
   key: key,
@@ -14,32 +15,35 @@ const productStatus = Object.entries(ProductStatusEnum).map(([key, value]) => ({
 }));
 
 const ProductsPage = () => {
+  const { session } = useSessionContext();
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<ProductStatusEnum>();
-  const [listProduct, setListProduct] = useState<ProductModel[]>(ListProductsMock);
+  const [listProduct, setListProduct] = useState<ProductModel[]>([]);
+  const [listProductFilter, setListProductFilter] = useState<ProductModel[]>([]);
 
-  const [userModalOpen, setUserModalOpen] = useState(false);
-  const [userModalSubtitle, setUserModalSubtitle] = useState('');
-  const [userModalPositiveBtn, setUserModalPositiveBtn] = useState('');
-  const [userModalNegativeBtn, setUserModalNegativeBtn] = useState('');
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [infoModalSubtitle, setInfoModalSubtitle] = useState('');
+  const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
+  const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
   const [productModalOpen, setProductModalOpen] = useState(false);
   const [productModalPositiveBtn, setProductModalPositiveBtn] = useState('');
   const [productModalNegativeBtn, setProductModalNegativeBtn] = useState('');
 
   const [editProduct, setEditProduct] = useState<ProductModel | undefined>();
+  const [action, setAction] = useState(ActionEnum.None);
 
   const handleFilterProducts = useCallback(() => {
     const list = (search.trim() === "" && !status)
-      ? ListProductsMock
-      : ListProductsMock.filter(p => {
+      ? listProduct
+      : listProduct.filter(p => {
         const matchDescription = search.trim() === "" || p.description.toLowerCase().includes(search.toLowerCase());
         const matchStatus = !status || p.status === status;
         return matchDescription && matchStatus;
       });
-    setListProduct(list)
-  }, [search, status]);
+    setListProductFilter(list)
+  }, [listProduct, search, status]);
 
   const handleEditProduct = useCallback(() => {
     setProductModalPositiveBtn("Salvar")
@@ -47,9 +51,52 @@ const ProductsPage = () => {
     setProductModalOpen(true)
   }, []);
 
+  const getAllProduts = async () => {
+    const { products, error } = await ProductService.getAll();
+    if (error) {
+      console.log(`getAllProduts`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao carregar os produtos`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setListProduct(products || []);
+      setListProductFilter(products || []);
+    }
+  };
+
+  const addProduct = async (product: ProductModel) => {
+    const error = await ProductService.add(product);
+    if (error) {
+      console.log(`addProduct`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao salvar o produto`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    }
+    getAllProduts()
+  };
+
+  const updateProduct = async (product: ProductModel) => {
+    const { error } = await ProductService.update(product);
+    if (error) {
+      console.log(`updateProduct:`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao atualizar o produto`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    }
+    getAllProduts()
+  };
+
   useEffect(() => {
     handleFilterProducts();
   }, [search, status]);
+
+
+  useEffect(() => {
+    getAllProduts();
+  }, []);
 
   return <>
     <TopPageTitle
@@ -83,33 +130,37 @@ const ProductsPage = () => {
 
       </div>
 
-      <Button
-        className="products_button"
-        color='blue'
-        onClick={() => {
-          setEditProduct(undefined)
-          setProductModalPositiveBtn("Salvar")
-          setProductModalNegativeBtn("Cancelar")
-          setProductModalOpen(true)
-        }}
-      >
-        Adicionar
-      </Button>
+      {session.user?.profile === UserProfileEnum.Admin &&
+        <Button
+          className="products_button"
+          color='blue'
+          onClick={() => {
+            setAction(ActionEnum.Add)
+            setEditProduct(undefined)
+            setProductModalPositiveBtn("Salvar")
+            setProductModalNegativeBtn("Cancelar")
+            setProductModalOpen(true)
+          }}
+        >
+          Adicionar
+        </Button>
+
+      }
     </div>
 
     <div>
       <ProductsTable
-        items={listProduct}
-
+        items={listProductFilter}
         onEdit={(item) => {
+          setAction(ActionEnum.Update)
           setEditProduct(item)
           handleEditProduct()
         }}
         onDelete={() => {
-          setUserModalSubtitle("Deseja deletar esse produto?\nEssa ação não pode ser desfeita.")
-          setUserModalPositiveBtn("Deletar")
-          setUserModalNegativeBtn("Cancelar")
-          setUserModalOpen(true)
+          setInfoModalSubtitle("Deseja deletar esse produto?\nEssa ação não pode ser desfeita.")
+          setInfoModalPositiveBtn("Deletar")
+          setInfoModalNegativeBtn("Cancelar")
+          setInfoModalOpen(true)
         }}
       />
     </div>
@@ -123,6 +174,11 @@ const ProductsPage = () => {
       onPositiveBtn={(item) => {
         console.log(`item`, item)
         setProductModalOpen(false)
+        if (action === ActionEnum.Add) {
+          addProduct(item)
+        } else {
+          updateProduct(item)
+        }
       }}
       onNegativeBtn={() => {
         setProductModalOpen(false)
@@ -131,21 +187,19 @@ const ProductsPage = () => {
 
 
     <InfoModal
-      open={userModalOpen}
+      open={infoModalOpen}
       title='Atenção'
-      subtitle={userModalSubtitle}
-      positiveBtnText={userModalPositiveBtn}
-      negativeBtnText={userModalNegativeBtn}
+      subtitle={infoModalSubtitle}
+      positiveBtnText={infoModalPositiveBtn}
+      negativeBtnText={infoModalNegativeBtn}
       onPositiveBtn={() => {
-        setUserModalOpen(false)
+        setInfoModalOpen(false)
       }}
       onNegativeBtn={() => {
-        setUserModalOpen(false)
+        setInfoModalOpen(false)
       }}
     />
   </>
 }
 
-export {
-  ProductsPage
-}
+export { ProductsPage }
