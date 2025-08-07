@@ -1,10 +1,12 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { InfoModal, SalesTableHeader, TopPageTitle } from '../../component';
 import { SalesTable } from '../../component/sales-table/SalesTable';
 import { Button } from 'semantic-ui-react';
 import "./SalesPage.scss"
 import { faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons';
-import { ItemSaleModel, PaymentTypeEnum } from '../../models';
+import { ItemSaleModel, PaymentTypeEnum, ProductModel, SaleModel } from '../../models';
+import { ProductService, SaleService } from '../../services';
+import { useSessionContext } from '../../providers';
 
 const SalesPage = () => {
 
@@ -13,15 +15,63 @@ const SalesPage = () => {
     updateNumLines: (isAdd: boolean) => void
   }>(null);
 
+  const { session } = useSessionContext();
+
   const [client, setClient] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [paymentType, setPaymentType] = useState<PaymentTypeEnum>(PaymentTypeEnum.Debit);
   const [listItems, setListItems] = useState<ItemSaleModel[]>([]);
 
-  const [userModalOpen, setUserModalOpen] = useState(false);
-  const [userModalSubtitle, setUserModalSubtitle] = useState('');
-  const [userModalPositiveBtn, setUserModalPositiveBtn] = useState('');
-  const [userModalNegativeBtn, setUserModalNegativeBtn] = useState('');
+  const [listProduct, setListProduct] = useState<ProductModel[]>([]);
+
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [infoModalSubtitle, setInfoModalSubtitle] = useState('');
+  const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
+  const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
+
+  const getAllProduts = async () => {
+    const { products, error } = await ProductService.getAll();
+    if (error) {
+      console.log(`getAllProduts`, error)
+      setInfoModalSubtitle(`Falha ao carregar os produtos`)
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setListProduct(products || []);
+    }
+  };
+
+  const saveSale = async () => {
+    if (session.user) {
+      const sale: SaleModel = {
+        id: 0,
+        user: session.user,
+        client: client,
+        address: address,
+        paymentType: paymentType,
+        timestamp: Date.now(),
+        itemsSale: listItems
+      }
+      const error = await SaleService.add(sale);
+      if (error) {
+        console.log(`saveSale`, error)
+        setInfoModalSubtitle(`Falha ao processar a venda`)
+        setInfoModalNegativeBtn("Ok")
+        setInfoModalOpen(true)
+      } else {
+        handleClearListProduct()
+        setInfoModalSubtitle("Venda processada com sucesso")
+        setInfoModalPositiveBtn("Ok")
+        setInfoModalNegativeBtn("")
+        setInfoModalOpen(true)
+      }
+    } else {
+      handleClearListProduct()
+      setInfoModalSubtitle("Usuário não logado - ISSO TA ERRADO")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    }
+  };
 
   const handleCountLine = useCallback((isAdd: boolean) => {
     salesTableRef.current?.updateNumLines(isAdd);
@@ -30,35 +80,32 @@ const SalesPage = () => {
   const handleSaveAndPrint = useCallback(() => {
 
     if (!client) {
-      setUserModalSubtitle("Por favor, preencha o nome do cliente")
-      setUserModalPositiveBtn("")
-      setUserModalNegativeBtn("Ok")
-      setUserModalOpen(true)
+      setInfoModalSubtitle("Por favor, preencha o nome do cliente")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
       return
     }
 
     if (!address) {
-      setUserModalSubtitle("Por favor, preencha o endereço")
-      setUserModalPositiveBtn("")
-      setUserModalNegativeBtn("Ok")
-      setUserModalOpen(true)
+      setInfoModalSubtitle("Por favor, preencha o endereço")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
       return
     }
 
     if (!isValidListItems()) {
-      setUserModalSubtitle("Por favor, preencha os itens na lista corretamente")
-      setUserModalPositiveBtn("")
-      setUserModalNegativeBtn("Ok")
-      setUserModalOpen(true)
+      setInfoModalSubtitle("Por favor, preencha os itens na lista corretamente")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
       return
     }
 
     //
-    handleClearListProduct()
-    setUserModalSubtitle("Vendas processadas com sucesso")
-    setUserModalPositiveBtn("Ok")
-    setUserModalNegativeBtn("")
-    setUserModalOpen(true)
+    saveSale()
+
 
   }, [client, address, paymentType, listItems])
 
@@ -74,6 +121,10 @@ const SalesPage = () => {
     const validList = listItems.some(item => item.product && item.count && item.count !== 0)
     return !invalidList && validList
   }, [listItems]);
+
+  useEffect(() => {
+    getAllProduts();
+  }, []);
 
   return <>
     < TopPageTitle
@@ -100,6 +151,7 @@ const SalesPage = () => {
     <div>
       <SalesTable
         ref={salesTableRef}
+        products={listProduct}
         paymentType={paymentType}
         onChangeItems={(list) => {
           setListItems(list)
@@ -152,16 +204,16 @@ const SalesPage = () => {
     </div>
 
     <InfoModal
-      open={userModalOpen}
+      open={infoModalOpen}
       title='Atenção'
-      subtitle={userModalSubtitle}
-      positiveBtnText={userModalPositiveBtn}
-      negativeBtnText={userModalNegativeBtn}
+      subtitle={infoModalSubtitle}
+      positiveBtnText={infoModalPositiveBtn}
+      negativeBtnText={infoModalNegativeBtn}
       onPositiveBtn={() => {
-        setUserModalOpen(false)
+        setInfoModalOpen(false)
       }}
       onNegativeBtn={() => {
-        setUserModalOpen(false)
+        setInfoModalOpen(false)
       }}
     />
   </>

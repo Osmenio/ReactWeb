@@ -65,12 +65,17 @@ const ProductsPage = () => {
     }
   };
 
-  const addProduct = async (product: ProductModel) => {
+  const saveProduct = async (product: ProductModel) => {
     const error = await ProductService.add(product);
     if (error) {
       console.log(`addProduct`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao salvar o produto`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Produto salvo com sucesso`)
       setInfoModalPositiveBtn("Ok")
       setInfoModalOpen(true)
     }
@@ -92,7 +97,6 @@ const ProductsPage = () => {
   useEffect(() => {
     handleFilterProducts();
   }, [search, status]);
-
 
   useEffect(() => {
     getAllProduts();
@@ -175,7 +179,7 @@ const ProductsPage = () => {
         console.log(`item`, item)
         setProductModalOpen(false)
         if (action === ActionEnum.Add) {
-          addProduct(item)
+          saveProduct(item)
         } else {
           updateProduct(item)
         }

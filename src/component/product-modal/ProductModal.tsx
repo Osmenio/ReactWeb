@@ -8,7 +8,7 @@ import { decimalFormat } from '../../utils/format-utils';
 interface DecimalInputProps {
   value: string;
   error: string
-  onChange?: (string: string) => void;
+  onChange?: (value: string) => void;
 }
 const DecimalInput = ({
   value,

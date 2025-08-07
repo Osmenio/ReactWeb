@@ -3,9 +3,8 @@ import { Table, TableBody, TableCell, TableHeader, TableHeaderCell, TableRow } f
 import './ProductsTable.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { ProductModel, UserProfileEnum } from '../../models';
+import { ProductModel, ProductStatusEnum, UserProfileEnum } from '../../models';
 import { decimalFormat } from '../../utils/format-utils';
-import { ProductStatusEnum } from '../../models/ProductStatusEnum';
 import { useSessionContext } from '../../providers';
 
 interface ProductsTableProps {

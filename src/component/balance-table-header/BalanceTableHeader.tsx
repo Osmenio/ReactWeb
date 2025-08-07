@@ -2,14 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button, Dropdown, Grid, Input } from 'semantic-ui-react';
 import './BalanceTableHeader.scss';
 import { format } from 'date-fns';
-import { PaymentTypeEnum } from '../../models/PaymentTypeEnum';
+import { PaymentTypeEnum, ProductModel, UserModel } from '../../models';
 
 const SALESMAN_MOCK = ["Carlos", "Ingrid", "Roberto", "Marcia"]
-const salesmanOptions = Object.entries(SALESMAN_MOCK).map(([key, value]) => ({
-  key: key,
-  text: value,
-  value: value,
-}));
+// const salesmanOptions = Object.entries(SALESMAN_MOCK).map(([key, value]) => ({
+//   key: key,
+//   text: value,
+//   value: value,
+// }));
 
 const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
   key: key,
@@ -18,22 +18,26 @@ const paymentOptions = Object.entries(PaymentTypeEnum).map(([key, value]) => ({
 }));
 
 interface BalanceTableHeaderProps {
+  users: UserModel[];
+  products: ProductModel[];
   initialDate?: string,
   finalDate?: string,
-  onChangeClient?: (string) => void;
-  onChangeSalesMan?: (string) => void;
-  onChangeProduct?: (string) => void;
-  onChangeInitialDate?: (string) => void;
-  onChangeFinalDate?: (string) => void;
-  onChangePaymentType?: (PaymentTypeEnum) => void;
+  onChangeClient?: (value: string) => void;
+  onChangeUser?: (value?: UserModel) => void;
+  onChangeProduct?: (value?: ProductModel) => void;
+  onChangeInitialDate?: (value: string) => void;
+  onChangeFinalDate?: (value: string) => void;
+  onChangePaymentType?: (type: PaymentTypeEnum) => void;
   onSearch?: () => void;
 }
 
 const BalanceTableHeader = ({
+  users,
+  products,
   initialDate,
   finalDate,
   onChangeClient = () => { },
-  onChangeSalesMan = () => { },
+  onChangeUser = () => { },
   onChangeProduct = () => { },
   onChangeInitialDate = () => { },
   onChangeFinalDate = () => { },
@@ -46,6 +50,21 @@ const BalanceTableHeader = ({
   const [startDate, setStartDate] = useState(initialDate ?? dateNow);
   const [endDate, setEndDate] = useState(finalDate ?? dateNow);
   const [errorDate, setErrorDate] = useState('');
+
+  const usersOptions = Object.entries(users).map(([key, value]) => ({
+    // key: key,
+    key: value.id,
+    text: value.name,
+    value: value.id,
+  }));
+
+  const productsOptions = Object.entries(products).map(([key, value]) => ({
+    // key: key,
+    key: value.id,
+    text: value.description,
+    value: value.id,
+  }));
+  // console.log(`usersOptions`, usersOptions)
 
   const handleChangeDates = useCallback(() => {
     if (startDate > endDate) {
@@ -120,9 +139,7 @@ const BalanceTableHeader = ({
           </Grid.Column>
         </Grid.Row>
 
-        {/* // */}
         <Grid.Row className="bth_grid_row">
-
           <Grid.Column
             width={2}
             textAlign='right'
@@ -138,10 +155,10 @@ const BalanceTableHeader = ({
               selection
               clearable
               placeholder='Vendedor'
-              options={salesmanOptions}
+              options={usersOptions}
               onChange={(_, data) => {
-                const type = data.value
-                onChangeSalesMan(type);
+                const user = users.find(p => p.id === data.value)
+                onChangeUser(user);
               }}
             />
           </Grid.Column>
@@ -184,11 +201,16 @@ const BalanceTableHeader = ({
 
           <Grid.Column
             width={6}>
-            <Input
-              placeholder="Produto"
+            <Dropdown
               fluid
-              onChange={(event) => {
-                onChangeProduct(event.target.value)
+              selection
+              clearable
+              search
+              placeholder='Prduto'
+              options={productsOptions}
+              onChange={(_, data) => {
+                const product = products.find(p => p.id === data.value)
+                onChangeProduct(product);
               }}
             />
           </Grid.Column>

@@ -1,0 +1,19 @@
+import { ItemSaleModel, ProductModel, ProductStatusEnum } from "."
+
+export const DefaultProductModel: ProductModel = {
+    id: 0,
+    description: "",
+    buyPrice: 0,
+    priceOne: 0,
+    priceTwo: 0,
+    priceThree: 0,
+    status: ProductStatusEnum.InStock
+}
+
+export const DefaultItemSaleModel: ItemSaleModel = {
+    id: 0,
+    product: DefaultProductModel,
+    buyPrice: 0,
+    count: 0,
+    unitPrice: 0
+}

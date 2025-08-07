@@ -15,7 +15,7 @@ interface UserModalProps {
   item?: UserModel;
   positiveBtnText?: string;
   negativeBtnText?: string;
-  onPositiveBtn?: (UserModel) => void;
+  onPositiveBtn?: (user: UserModel) => void;
   onNegativeBtn?: () => void;
 }
 
@@ -50,11 +50,12 @@ const UserModal = ({
   const handleSave = useCallback(() => {
     if (isValidFields()) {
       onPositiveBtn({
-        ...(item?.id && { id: item.id }),
+        id: item?.id ?? 0,
         name,
         login,
-        profile,
-        status,
+        password: item?.password ?? "123",
+        profile: profile ?? UserProfileEnum.Sales,
+        status: status ?? UserStatusEnum.FirstAccess,
       })
       cleanAll()
     }

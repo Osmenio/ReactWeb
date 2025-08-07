@@ -68,7 +68,7 @@ const UserPage = () => {
     }
   };
 
-  const addUser = async (user: UserModel) => {
+  const saveUser = async (user: UserModel) => {
     const newUser = {
       ...user,
       password: "123",
@@ -76,7 +76,7 @@ const UserPage = () => {
     }
     const error = await UserService.addUser(newUser);
     if (error) {
-      console.log(`addUser`, error)
+      console.log(`saveUser`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao salvar o usuário`)
       setInfoModalPositiveBtn("Ok")
@@ -203,7 +203,7 @@ const UserPage = () => {
       onPositiveBtn={(item) => {
         setUserModalOpen(false)
         if (action === ActionEnum.Add) {
-          addUser(item)
+          saveUser(item)
         } else {
           console.log(`UserModal:editUser`, editUser)
           updateUser(item)

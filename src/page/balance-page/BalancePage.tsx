@@ -1,19 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { BalanceTable, BalanceTableHeader, TopPageTitle } from '../../component';
+import { BalanceTable, BalanceTableHeader, InfoModal, TopPageTitle } from '../../component';
 import "./BalancePage.scss"
 import { faCalculator } from '@fortawesome/free-solid-svg-icons';
-import { PaymentTypeEnum } from '../../models';
-import { ListSaleMock } from '../../mock/sale.mock';
+import { FilterBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
 import { format } from 'date-fns';
+import { ProductService, SaleService, UserService } from '../../services';
 
 export interface ItemBalance {
   id: number,
-  saleman: string,
+  user: string,
   client: string,
   address: string,
   paymentType: PaymentTypeEnum,
-  date: string,
-  time: string,
   timestamp: number,
   product: string;
   buyPrice: number;
@@ -24,19 +22,16 @@ export interface ItemBalance {
 
 const BalancePage = () => {
 
-  // MOCK
-  const getItemsBalance = (): ItemBalance[] => {
-    return ListSaleMock.flatMap(sale =>
+  const getItemsBalance = (sales: SaleModel[]): ItemBalance[] => {
+    return sales.flatMap(sale =>
       sale.itemsSale.map(item => ({
         id: item.id ?? 0,
-        saleman: sale.saleman,
+        user: sale.user.name,
         client: sale.client,
         address: sale.address,
         paymentType: sale.paymentType,
-        date: sale.date,
-        time: sale.time,
         timestamp: sale.timestamp,
-        product: item.product ?? "",
+        product: item.product.description,
         buyPrice: item.buyPrice ?? 0,
         count: item.count ?? 0,
         unitPrice: item.unitPrice ?? 0,
@@ -50,33 +45,74 @@ const BalancePage = () => {
   date.setMonth(date.getMonth() + 4);
   const endDate = format(date, "yyyy-MM-dd");
 
-  const [client, setClient] = useState<string>('');
-  const [salesman, setSalesman] = useState<string>('');
-  const [product, setProduct] = useState<string>('');
+  const [client, setClient] = useState<string | undefined>(undefined);
+  const [user, setUser] = useState<UserModel | undefined>(undefined);
+  const [product, setProduct] = useState<ProductModel | undefined>(undefined);
   const [initialDate, setInitialDate] = useState<string>(startDate);
   const [finalDate, setFinalDate] = useState<string>(endDate);
   const [paymentType, setPaymentType] = useState<PaymentTypeEnum | undefined>(undefined);
 
-  const [balanceList, setBalanceList] = useState<ItemBalance[]>(getItemsBalance());
-  const [balanceListFilter, setBalanceListFilter] = useState<ItemBalance[]>([]);
+  const [balanceList, setBalanceList] = useState<ItemBalance[]>([]);
+  const [users, setUsers] = useState<UserModel[]>([]);
+  const [listProduct, setListProduct] = useState<ProductModel[]>([]);
+
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [infoModalSubtitle, setInfoModalSubtitle] = useState('');
+  const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
+  const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
+
+  const getAllUsers = async () => {
+    const { users, error } = await UserService.getAllUser();
+    if (error) {
+      // console.log(`getAllUsers`, error)
+      setInfoModalSubtitle(`Falha ao carregar os dados de usuários`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setUsers(users)
+    }
+  };
+
+  const getAllProduts = async () => {
+    const { products, error } = await ProductService.getAll();
+    if (error) {
+      console.log(`getAllProduts`, error)
+      setInfoModalSubtitle(`Falha ao carregar os produtos`)
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setListProduct(products || []);
+    }
+  };
+
+  const getAllItems = async (filter: FilterBalanceModel) => {
+    const { sales, error } = await SaleService.getAllByFilter(filter);
+    if (error) {
+      console.log(`getAllItem:error`, error)
+      setInfoModalSubtitle(`Falha ao carregar os dados`)
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setBalanceList(getItemsBalance(sales || []));
+    }
+  };
 
   const handleSearch = useCallback(() => {
-    // console.log(`handleSearch::${client}:${salesman}:${product}:${initialDate}:${finalDate}:${paymentType}`)
+    const filter: FilterBalanceModel = {
+      userId: user?.id,
+      client: client,
+      paymentType: paymentType,
+      startDate: new Date(`${initialDate}T00:00`).getTime(),
+      endDate: new Date(`${finalDate}T23:59`).getTime(),
+      productId: product?.id
+    }
 
-    const startDate = new Date(`${initialDate}T00:00`).getTime()
-    const endDate = new Date(`${finalDate}T23:59`).getTime()
-    const list = balanceList.filter(p => {
-      const matchClient = client.trim() === "" || p.client.toLowerCase().includes(client.toLowerCase());
-      const matchSalesman = !salesman || p.saleman === salesman;
-      const matchProduct = product.trim() === "" || p.product?.toLowerCase().includes(product.toLowerCase());
-      const matchDate = p.timestamp > startDate && p.timestamp < endDate
-      const matchPaymentType = !paymentType || p.paymentType === paymentType;
-      return matchClient && matchSalesman && matchProduct && matchDate && matchPaymentType;
-    });
-    setBalanceListFilter(list)
-  }, [balanceList, client, salesman, product, initialDate, finalDate, paymentType]);
+    getAllItems(filter)
+  }, [balanceList, client, user, product, initialDate, finalDate, paymentType]);
 
   useEffect(() => {
+    getAllUsers()
+    getAllProduts()
     handleSearch()
   }, []);
 
@@ -88,13 +124,15 @@ const BalancePage = () => {
 
     <div className="header_margin">
       <BalanceTableHeader
+        users={users}
+        products={listProduct}
         initialDate={startDate}
         finalDate={endDate}
         onChangeClient={(client) => {
           setClient(client)
         }}
-        onChangeSalesMan={(salesman) => {
-          setSalesman(salesman)
+        onChangeUser={(value) => {
+          setUser(value)
         }}
         onChangeProduct={(product) => {
           setProduct(product)
@@ -116,8 +154,22 @@ const BalancePage = () => {
 
     <div className="header_margin">
       <BalanceTable
-        items={balanceListFilter} />
+        items={balanceList} />
     </div>
+
+    <InfoModal
+      open={infoModalOpen}
+      title='Atenção'
+      subtitle={infoModalSubtitle}
+      positiveBtnText={infoModalPositiveBtn}
+      negativeBtnText={infoModalNegativeBtn}
+      onPositiveBtn={() => {
+        setInfoModalOpen(false)
+      }}
+      onNegativeBtn={() => {
+        setInfoModalOpen(false)
+      }}
+    />
   </>
 }
 

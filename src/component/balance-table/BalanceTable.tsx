@@ -9,7 +9,7 @@ import { format } from 'date-fns';
 
 interface BalanceTableProps {
   items: ItemBalance[];
-  onDelete?: (ItemBalance) => void;
+  onDelete?: (item: ItemBalance) => void;
 }
 
 const BalanceTable = ({
@@ -251,7 +251,7 @@ const BalanceTable = ({
                     className="bt_table_cell"
                     textAlign='center'
                   >
-                    {item.saleman}
+                    {item.user}
                   </TableCell>
 
                   <TableCell

@@ -70,15 +70,18 @@ const UserService = {
     },
 
     addUser: async (user: UserModel): Promise<string | undefined> => {
-        // const newUser = {
-        //     name: "123",
-        //     profile: "UserProfileEnum",
-        //     status: "UserStatusEnum",
-        // }
+        const newUser = {
+            name: user.name,
+            login: user.login,
+            password: user.password,
+            profile: user.profile,
+            status: user.status,
+        }
         console.log(`addUser:user`, user)
+        console.log(`addUser:newUser`, newUser)
         const { error } = await Database
             .from("User")
-            .insert([user])
+            .insert([newUser])
             .single();
 
         console.log(`addUser:error`, error)

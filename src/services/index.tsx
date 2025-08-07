@@ -1,3 +1,4 @@
 export * from './DatabaseClient.tsx';
-export * from './UserService.tsx';
 export * from './ProductService.tsx';
+export * from './SaleService.tsx';
+export * from './UserService.tsx';

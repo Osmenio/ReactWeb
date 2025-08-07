@@ -14,9 +14,9 @@ interface SalesTableHeaderProps {
   client?: string;
   address?: string;
   paymentType?: PaymentTypeEnum;
-  onChangeClient?: (string) => void;
-  onChangeAddress?: (string) => void;
-  onChangePaymentType?: (PaymentTypeEnum) => void;
+  onChangeClient?: (value: string) => void;
+  onChangeAddress?: (value: string) => void;
+  onChangePaymentType?: (type: PaymentTypeEnum) => void;
 }
 
 const SalesTableHeader = ({
