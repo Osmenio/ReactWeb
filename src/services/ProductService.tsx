@@ -25,6 +25,30 @@ const ProductService = {
         };
     },
 
+    getAllInStock: async (): Promise<{ products: ProductModel[], error: string | undefined }> => {
+        const { data, error } = await Database
+            .from("Product")
+            .select("*")
+            .eq("status", ProductStatusEnum.InStock)
+
+        const list = data ? data.map((item): ProductModel => ({
+            id: item.id,
+            description: item.name,
+            buyPrice: item.buy_price,
+            priceOne: item.price_one,
+            priceTwo: item.price_two,
+            priceThree: item.price_three,
+            status: item.status as ProductStatusEnum.InStock
+        })) : []
+
+        return {
+            products: list,
+            error: error?.details && error?.message
+                ? `${error.details}: ${error.message}`
+                : error?.details || error?.message || undefined
+        };
+    },
+
     update: async (product: ProductModel): Promise<{ product: ProductModel | undefined; error: string | undefined }> => {
         const { data, error } = await Database
             .from("Product")

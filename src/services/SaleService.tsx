@@ -1,5 +1,5 @@
-import { FilterBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, UserProfileEnum, UserStatusEnum } from "../models";
-import { DefaultProductModel } from "../models/DefaultModels.tsx";
+import { FilterBalanceModel, ItemSaleModel, PaymentTypeEnum, ProductModel, SaleModel, UserProfileEnum, UserStatusEnum } from "../models";
+import { DefaultItemSaleModel, DefaultProductModel } from "../models/DefaultModels.tsx";
 import { Database } from "./DatabaseClient";
 
 const SaleService = {
@@ -124,7 +124,7 @@ const SaleService = {
 
         const { data, error } = await query;
 
-        console.log(`getAllByFilter:filter`, filter)
+        // console.log(`getAllByFilter:filter`, filter)
         // console.log(`getAllByFilter:data`, data)
         const list = data ? (data as any[]).map((sale): SaleModel => ({
             id: sale.id,
@@ -140,10 +140,12 @@ const SaleService = {
             address: sale.address,
             paymentType: sale.payment_type,
             timestamp: sale.timestamp,
-            itemsSale: sale.itemsSale.map((item: any) => ({
+            itemsSale: sale.itemsSale.map((item: any): ItemSaleModel => ({
+                ...DefaultItemSaleModel,
                 id: item.id,
                 count: item.count,
                 unitPrice: item.unit_price,
+                buyPrice: item.buy_price,
                 discount: item.discount,
                 product: {
                     ...DefaultProductModel,
@@ -162,62 +164,6 @@ const SaleService = {
                 : error?.details || error?.message || undefined
         };
     },
-
-    // getUser: async (login: string, pwd: string): Promise<{ user: UserModel | undefined; error: string | undefined }> => {
-    //     const { data, error } = await Database
-    //         .from("User")
-    //         .select("*")
-    //         .eq("login", login)
-    //         .eq("password", pwd)
-    //         .single();
-    //     return {
-    //         user: data ? {
-    //             id: data.id,
-    //             name: data.name,
-    //             login: data.login,
-    //             password: data.password,
-    //             profile: data.profile as UserProfileEnum,
-    //             status: data.status as UserStatusEnum,
-    //         } : undefined,
-    //         // error: error?.details
-    //         error: error?.details && error?.message
-    //             ? `${error.details}: ${error.message}`
-    //             : error?.details || error?.message || undefined
-    //     };
-    // },
-
-    // update: async (product: ProductModel): Promise<{ product: ProductModel | undefined; error: string | undefined }> => {
-    //     const { data, error } = await Database
-    //         .from("Product")
-    //         .update({
-    //             "name": product.description,
-    //             "buy_price": product.buyPrice,
-    //             "price_one": product.priceOne,
-    //             "price_two": product.priceTwo,
-    //             "price_three": product.priceThree,
-    //             "status": product.status,
-    //         })
-    //         .eq("id", product.id)
-    //         .select("*")
-    //         .single()
-
-    //     console.log(`update:product`, product)
-    //     console.log(`update:`, error)
-    //     return {
-    //         product: data ? {
-    //             id: data.id,
-    //             description: data.name,
-    //             buyPrice: data.buy_price,
-    //             priceOne: data.price_one,
-    //             priceTwo: data.price_two,
-    //             priceThree: data.price_three,
-    //             status: data.status as ProductStatusEnum.InStock
-    //         } : undefined,
-    //         error: error?.details && error?.message
-    //             ? `${error.details}: ${error.message}`
-    //             : error?.details || error?.message || undefined
-    //     };
-    // },
 
     add: async (sale: SaleModel): Promise<string | undefined> => {
         // 1. Monta objeto para tabela Sale

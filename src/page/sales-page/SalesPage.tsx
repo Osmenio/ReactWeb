@@ -32,7 +32,7 @@ const SalesPage = () => {
   const [loading, setLoading] = useState(false);
 
   const getAllProduts = async () => {
-    const { products, error } = await ProductService.getAll();
+    const { products, error } = await ProductService.getAllInStock();
     if (error) {
       console.log(`getAllProduts`, error)
       setInfoModalSubtitle(`Falha ao carregar os produtos`)

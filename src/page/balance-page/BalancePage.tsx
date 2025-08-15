@@ -78,7 +78,7 @@ const BalancePage = () => {
   const getAllProduts = async () => {
     const { products, error } = await ProductService.getAll();
     if (error) {
-      console.log(`getAllProduts`, error)
+      // console.log(`getAllProduts`, error)
       setInfoModalSubtitle(`Falha ao carregar os produtos`)
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
@@ -90,7 +90,7 @@ const BalancePage = () => {
   const getAllItems = async (filter: FilterBalanceModel) => {
     const { sales, error } = await SaleService.getAllByFilter(filter);
     if (error) {
-      console.log(`getAllItem:error`, error)
+      // console.log(`getAllItem:error`, error)
       setInfoModalSubtitle(`Falha ao carregar os dados`)
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
@@ -159,7 +159,15 @@ const BalancePage = () => {
 
     <div className="header_margin">
       <BalanceTable
-        items={balanceList} />
+        items={balanceList}
+
+        onDelete={(item) => {
+          setInfoModalSubtitle("Deseja deletar esse item de venda?\nEssa ação não pode ser desfeita.")
+          setInfoModalPositiveBtn("Deletar")
+          setInfoModalNegativeBtn("Cancelar")
+          setInfoModalOpen(true)
+        }}
+      />
     </div>
 
     <InfoModal
