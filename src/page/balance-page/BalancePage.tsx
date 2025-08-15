@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { BalanceTable, BalanceTableHeader, InfoModal, TopPageTitle } from '../../component';
+import { BalanceTable, BalanceTableHeader, InfoModal, LoadingModal, TopPageTitle } from '../../component';
 import "./BalancePage.scss"
 import { faCalculator } from '@fortawesome/free-solid-svg-icons';
 import { FilterBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
@@ -61,6 +61,8 @@ const BalancePage = () => {
   const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
   const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const getAllUsers = async () => {
     const { users, error } = await UserService.getAllUser();
     if (error) {
@@ -95,6 +97,7 @@ const BalancePage = () => {
     } else {
       setBalanceList(getItemsBalance(sales || []));
     }
+    setLoading(false)
   };
 
   const handleSearch = useCallback(() => {
@@ -111,6 +114,7 @@ const BalancePage = () => {
   }, [balanceList, client, user, product, initialDate, finalDate, paymentType]);
 
   useEffect(() => {
+    setLoading(true)
     getAllUsers()
     getAllProduts()
     handleSearch()
@@ -147,6 +151,7 @@ const BalancePage = () => {
           setPaymentType(type)
         }}
         onSearch={() => {
+          setLoading(true)
           handleSearch()
         }}
       />
@@ -169,6 +174,10 @@ const BalancePage = () => {
       onNegativeBtn={() => {
         setInfoModalOpen(false)
       }}
+    />
+
+    <LoadingModal
+      show={loading}
     />
   </>
 }

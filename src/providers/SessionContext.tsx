@@ -45,7 +45,7 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
     if (newSession) {
       const localSession = {
         ...newSession,
-        expiresAt: newSession.expiresAt > 0 ? newSession.expiresAt : Date.now() + 2 * 60 * 1000 // 2 min
+        expiresAt: newSession.expiresAt > 0 ? newSession.expiresAt : Date.now() + 30 * 60 * 1000 // 30 min
       }
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localSession));
     } else {

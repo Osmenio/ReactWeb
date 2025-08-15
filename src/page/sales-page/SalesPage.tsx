@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { InfoModal, SalesTableHeader, TopPageTitle } from '../../component';
+import { InfoModal, LoadingModal, SalesTableHeader, TopPageTitle } from '../../component';
 import { SalesTable } from '../../component/sales-table/SalesTable';
 import { Button } from 'semantic-ui-react';
 import "./SalesPage.scss"
@@ -29,6 +29,8 @@ const SalesPage = () => {
   const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
   const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const getAllProduts = async () => {
     const { products, error } = await ProductService.getAll();
     if (error) {
@@ -39,6 +41,7 @@ const SalesPage = () => {
     } else {
       setListProduct(products || []);
     }
+    setLoading(false)
   };
 
   const saveSale = async () => {
@@ -56,6 +59,7 @@ const SalesPage = () => {
       if (error) {
         console.log(`saveSale`, error)
         setInfoModalSubtitle(`Falha ao processar a venda`)
+        setInfoModalPositiveBtn("")
         setInfoModalNegativeBtn("Ok")
         setInfoModalOpen(true)
       } else {
@@ -71,6 +75,7 @@ const SalesPage = () => {
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     }
+    setLoading(false)
   };
 
   const handleCountLine = useCallback((isAdd: boolean) => {
@@ -104,9 +109,8 @@ const SalesPage = () => {
     }
 
     //
+    setLoading(true)
     saveSale()
-
-
   }, [client, address, paymentType, listItems])
 
   const handleClearListProduct = useCallback(() => {
@@ -123,6 +127,7 @@ const SalesPage = () => {
   }, [listItems]);
 
   useEffect(() => {
+    setLoading(true)
     getAllProduts();
   }, []);
 
@@ -196,7 +201,6 @@ const SalesPage = () => {
           onClick={() => {
             handleSaveAndPrint()
           }}
-
         >
           Salvar
         </Button>
@@ -215,6 +219,10 @@ const SalesPage = () => {
       onNegativeBtn={() => {
         setInfoModalOpen(false)
       }}
+    />
+
+    <LoadingModal
+      show={loading}
     />
   </>
 }

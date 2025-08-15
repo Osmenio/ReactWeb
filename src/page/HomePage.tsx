@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useNavigate } from "react-router-dom"
-import { LoginModal } from '../component';
+import { LoadingModal, LoginModal } from '../component';
 import { UserService } from '../services/UserService';
 import { UserModel, UserProfileEnum, UserStatusEnum } from '../models';
 import { useSessionContext } from '../providers';
@@ -12,6 +12,8 @@ const HomePage = () => {
   const [error, setError] = useState("");
   const [isConfirmPassword, setConfirmPassword] = useState(false);
   const [loggedUser, setLoggerUser] = useState<UserModel | undefined>();
+  
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -41,6 +43,7 @@ const HomePage = () => {
     } else if (user?.status == UserStatusEnum.Inactive) {
       setError("Usuário não encontrado")
     }
+    setLoading(false)
   };
 
   const updateUser = async (login: string, pwd: string) => {
@@ -69,9 +72,11 @@ const HomePage = () => {
       setConfirmPassword(false)
       navigate('/product');
     }
+    setLoading(false)
   };
 
   const handleUser = useCallback((login, password) => {
+    setLoading(true)
     if (isConfirmPassword) {
       updateUser(login, password)
     } else {
@@ -88,6 +93,10 @@ const HomePage = () => {
         onClick={({ login, password }) => {
           handleUser(login, password);
         }}
+      />
+
+      <LoadingModal
+        show={loading}
       />
     </>
   )

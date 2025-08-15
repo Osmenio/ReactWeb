@@ -36,7 +36,6 @@ const LoginModal = ({
   const [errorConfirmPwd, setErrorConfirmPwd] = useState(false);
 
   const handleOnClick = useCallback(() => {
-    // console.log(`handleOnClick`)
     if (isValidFields()) {
       onClick({
         login: login,

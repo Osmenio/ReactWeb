@@ -18,37 +18,12 @@ const ProductService = {
         })) : []
 
         return {
-            // products: data ?? [],
             products: list,
-            // error: error?.message
             error: error?.details && error?.message
                 ? `${error.details}: ${error.message}`
                 : error?.details || error?.message || undefined
         };
     },
-
-    // getUser: async (login: string, pwd: string): Promise<{ user: UserModel | undefined; error: string | undefined }> => {
-    //     const { data, error } = await Database
-    //         .from("User")
-    //         .select("*")
-    //         .eq("login", login)
-    //         .eq("password", pwd)
-    //         .single();
-    //     return {
-    //         user: data ? {
-    //             id: data.id,
-    //             name: data.name,
-    //             login: data.login,
-    //             password: data.password,
-    //             profile: data.profile as UserProfileEnum,
-    //             status: data.status as UserStatusEnum,
-    //         } : undefined,
-    //         // error: error?.details
-    //         error: error?.details && error?.message
-    //             ? `${error.details}: ${error.message}`
-    //             : error?.details || error?.message || undefined
-    //     };
-    // },
 
     update: async (product: ProductModel): Promise<{ product: ProductModel | undefined; error: string | undefined }> => {
         const { data, error } = await Database

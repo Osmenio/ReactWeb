@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { InfoModal, ProductModal, ProductsTable, TopPageTitle } from '../../component';
+import { InfoModal, LoadingModal, ProductModal, ProductsTable, TopPageTitle } from '../../component';
 import { faBoxesStacked } from '@fortawesome/free-solid-svg-icons/faBoxesStacked';
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import "./ProductsPage.scss"
@@ -33,6 +33,7 @@ const ProductsPage = () => {
 
   const [editProduct, setEditProduct] = useState<ProductModel | undefined>();
   const [action, setAction] = useState(ActionEnum.None);
+  const [loading, setLoading] = useState(false);
 
   const handleFilterProducts = useCallback(() => {
     const list = (search.trim() === "" && !status)
@@ -57,12 +58,14 @@ const ProductsPage = () => {
       console.log(`getAllProduts`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao carregar os produtos`)
-      setInfoModalPositiveBtn("Ok")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       setListProduct(products || []);
       setListProductFilter(products || []);
     }
+    setLoading(false)
   };
 
   const saveProduct = async (product: ProductModel) => {
@@ -71,12 +74,14 @@ const ProductsPage = () => {
       console.log(`addProduct`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao salvar o produto`)
-      setInfoModalPositiveBtn("Ok")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Produto salvo com sucesso`)
       setInfoModalPositiveBtn("Ok")
+      setInfoModalNegativeBtn("")
       setInfoModalOpen(true)
     }
     getAllProduts()
@@ -88,7 +93,14 @@ const ProductsPage = () => {
       console.log(`updateProduct:`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao atualizar o produto`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Produto atualizado com sucesso`)
       setInfoModalPositiveBtn("Ok")
+      setInfoModalNegativeBtn("")
       setInfoModalOpen(true)
     }
     getAllProduts()
@@ -99,6 +111,7 @@ const ProductsPage = () => {
   }, [search, status]);
 
   useEffect(() => {
+    setLoading(true)
     getAllProduts();
   }, []);
 
@@ -176,19 +189,18 @@ const ProductsPage = () => {
       positiveBtnText={productModalPositiveBtn}
       negativeBtnText={productModalNegativeBtn}
       onPositiveBtn={(item) => {
-        console.log(`item`, item)
         setProductModalOpen(false)
         if (action === ActionEnum.Add) {
           saveProduct(item)
         } else {
           updateProduct(item)
         }
+        setLoading(true)
       }}
       onNegativeBtn={() => {
         setProductModalOpen(false)
       }}
     />
-
 
     <InfoModal
       open={infoModalOpen}
@@ -202,6 +214,10 @@ const ProductsPage = () => {
       onNegativeBtn={() => {
         setInfoModalOpen(false)
       }}
+    />
+
+    <LoadingModal
+      show={loading}
     />
   </>
 }
