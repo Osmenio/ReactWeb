@@ -1,14 +1,9 @@
-
 .table_text {
   font-size: 18px !important;
 }
 
 .table_input_align input {
-  // max-width: 50px;
-
-  // input {
   text-align: center !important;
-  // }
 }
 
 .table_total {
@@ -18,18 +13,13 @@
   margin: 0 20px;
 }
 
-.text_total {
-  // font-size: 34px;
-  font-weight: bold;
+.table_cell_red {
+  color: red;
 }
 
-// .ui.table thead th {
-//   padding: 5px !important;
-
-//   tr {
-//     padding: 5px !important;
-//   }
-// }
+.text_total {
+  font-weight: bold;
+}
 
 .ui.table {
 
@@ -53,14 +43,5 @@
 
   .no_print {
     display: none;
-    // font-size: 18px !important;
   }
-
-  // .print_show {
-  //   display: show;
-  // }
-
-  // .ui.table thead th {
-  //   padding: 5px !important;
-  // }
 }

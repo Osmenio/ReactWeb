@@ -52,7 +52,8 @@ const UserPage = () => {
       console.log(`getAllUsers`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao carregar os dados de usuários`)
-      setInfoModalPositiveBtn("Ok")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       const list = filterAdm(users.sort((a, b) => a.name.localeCompare(b.name)))
@@ -73,7 +74,8 @@ const UserPage = () => {
       console.log(`saveUser`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao salvar o usuário`)
-      setInfoModalPositiveBtn("Ok")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       setAction(ActionEnum.None)
@@ -91,7 +93,8 @@ const UserPage = () => {
       console.log(`updateUser:`, error)
       setAction(ActionEnum.None)
       setInfoModalSubtitle(`Falha ao atualizar o usuário`)
-      setInfoModalPositiveBtn("Ok")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       setAction(ActionEnum.None)

@@ -6,3 +6,13 @@ const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const Database = createClient(supabaseUrl, supabaseKey);
 
 export { Database };
+
+export function formatError(error?: { details?: string; message?: string } | null): string | undefined {
+    if (!error) return undefined;
+
+    if (error.details && error.message) {
+        return `${error.details}: ${error.message}`;
+    }
+
+    return error.details || error.message || undefined;
+}

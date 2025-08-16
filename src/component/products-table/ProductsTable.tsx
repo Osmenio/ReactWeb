@@ -134,11 +134,11 @@ const ProductsTable = forwardRef((props: ProductsTableProps, ref) => {
                       <FontAwesomeIcon
                         icon={faPen}
                         onClick={() => onEdit(item)} />
-                      <FontAwesomeIcon
+                      {/* <FontAwesomeIcon
                         icon={faTrash}
                         color='red'
                         style={{ marginLeft: '10px' }}
-                        onClick={() => onDelete(item)} />
+                        onClick={() => onDelete(item)} /> */}
                     </TableCell>
                   }
                 </TableRow>

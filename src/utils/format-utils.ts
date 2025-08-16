@@ -16,6 +16,17 @@ export function decimalFormat(valor: number): string {
   });
 }
 
+// Formata uma string como decimal adionando a mascara (1.234,56)
+export function decimalFormatMask(value: string): string {
+  if (!value) value = "0";
+  const intValue = parseInt(value, 10);
+  return (intValue / 100).toLocaleString('pt-BR', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 // Formata um número como porcentagem (50,00%)
 export function formatarPorcentagem(valor: number): string {
   return (valor / 100).toLocaleString('pt-BR', {

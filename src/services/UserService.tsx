@@ -1,5 +1,5 @@
 import { UserModel, UserProfileEnum, UserStatusEnum } from "../models";
-import { Database } from "./DatabaseClient";
+import { Database, formatError } from "./DatabaseClient";
 
 const UserService = {
 
@@ -7,12 +7,14 @@ const UserService = {
         const { data, error } = await Database
             .from("User").select("*")
 
+        // console.log(`getAllUser:`, error)
         return {
             users: data ?? [],
             // error: error?.message
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -23,6 +25,8 @@ const UserService = {
             .eq("login", login)
             .eq("password", pwd)
             .single();
+
+        // console.log(`getUser:`, error)
         return {
             user: data ? {
                 id: data.id,
@@ -33,9 +37,10 @@ const UserService = {
                 status: data.status as UserStatusEnum,
             } : undefined,
             // error: error?.details
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -53,7 +58,7 @@ const UserService = {
             .select("*")
             .single()
 
-        console.log(`updateUser:`, error)
+        // console.log(`updateUser:`, error)
         return {
             user: data ? {
                 id: data.id,
@@ -77,18 +82,19 @@ const UserService = {
             profile: user.profile,
             status: user.status,
         }
-        console.log(`addUser:user`, user)
-        console.log(`addUser:newUser`, newUser)
+        // console.log(`addUser:user`, user)
+        // console.log(`addUser:newUser`, newUser)
         const { error } = await Database
             .from("User")
             .insert([newUser])
             .single();
 
-        console.log(`addUser:error`, error)
+        // console.log(`addUser:error`, error)
         // return error?.details
-        return error?.details && error?.message
-            ? `${error.details}: ${error.message}`
-            : error?.details || error?.message || undefined
+        return formatError(error)
+        // error?.details && error?.message
+        //     ? `${error.details}: ${error.message}`
+        //     : error?.details || error?.message || undefined
     },
 };
 

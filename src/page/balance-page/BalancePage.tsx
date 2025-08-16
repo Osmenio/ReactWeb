@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { BalanceTable, BalanceTableHeader, InfoModal, LoadingModal, TopPageTitle } from '../../component';
 import "./BalancePage.scss"
 import { faCalculator } from '@fortawesome/free-solid-svg-icons';
-import { FilterBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
+import { ActionEnum, FilterBalanceModel, ItemSaleModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
 import { format } from 'date-fns';
 import { ProductService, SaleService, UserService } from '../../services';
 
@@ -61,6 +61,9 @@ const BalancePage = () => {
   const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
   const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
+  const [action, setAction] = useState(ActionEnum.None);
+  const [editItemId, setEditItemId] = useState<number | undefined>();
+
   const [loading, setLoading] = useState(false);
 
   const getAllUsers = async () => {
@@ -68,7 +71,8 @@ const BalancePage = () => {
     if (error) {
       // console.log(`getAllUsers`, error)
       setInfoModalSubtitle(`Falha ao carregar os dados de usuários`)
-      setInfoModalPositiveBtn("Ok")
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       setUsers(users)
@@ -80,6 +84,7 @@ const BalancePage = () => {
     if (error) {
       // console.log(`getAllProduts`, error)
       setInfoModalSubtitle(`Falha ao carregar os produtos`)
+      setInfoModalPositiveBtn("")
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
@@ -92,12 +97,33 @@ const BalancePage = () => {
     if (error) {
       // console.log(`getAllItem:error`, error)
       setInfoModalSubtitle(`Falha ao carregar os dados`)
+      setInfoModalPositiveBtn("")
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
       setBalanceList(getItemsBalance(sales || []));
     }
     setLoading(false)
+  };
+
+  const deleteItem = async (itemId: number) => {
+    const { error } = await SaleService.softDeleteItem(itemId);
+    if (error) {
+      // console.log(`getAllItem:error`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao deletar o item da venda`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Item deletado com sucesso`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalNegativeBtn("")
+      setInfoModalOpen(true)
+    }
+    setLoading(false)
+    handleSearch()
   };
 
   const handleSearch = useCallback(() => {
@@ -160,8 +186,9 @@ const BalancePage = () => {
     <div className="header_margin">
       <BalanceTable
         items={balanceList}
-
         onDelete={(item) => {
+          setEditItemId(item.id)
+          setAction(ActionEnum.Delete)
           setInfoModalSubtitle("Deseja deletar esse item de venda?\nEssa ação não pode ser desfeita.")
           setInfoModalPositiveBtn("Deletar")
           setInfoModalNegativeBtn("Cancelar")
@@ -178,6 +205,10 @@ const BalancePage = () => {
       negativeBtnText={infoModalNegativeBtn}
       onPositiveBtn={() => {
         setInfoModalOpen(false)
+        if (action === ActionEnum.Delete && editItemId) {
+          setLoading(true)
+          deleteItem(editItemId)
+        }
       }}
       onNegativeBtn={() => {
         setInfoModalOpen(false)

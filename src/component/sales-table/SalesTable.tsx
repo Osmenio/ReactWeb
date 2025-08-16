@@ -5,12 +5,11 @@ import { ItemSaleModel } from '../../models/ItemSaleModel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClose } from '@fortawesome/free-solid-svg-icons';
 import { PaymentTypeEnum, ProductModel, ProductStatusEnum } from '../../models';
-import { decimalFormat } from '../../utils/format-utils';
+import { decimalFormat, decimalFormatMask } from '../../utils/format-utils';
 import { DefaultItemSaleModel } from '../../models/DefaultModels';
 
 interface ItemSale extends ItemSaleModel {
   idx: number;
-  discountStr?: string;
 }
 
 interface SalesTableProps {
@@ -80,7 +79,6 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
 
   const handleSelectItem = useCallback((idx: number, value: string) => {
     const selected = products.find(p => p.description === value);
-    // console.log(`handleSelectItem`, selected)
     if (selected) {
       setListItems(prev => {
         const exists = prev.some(item => item.idx === idx);
@@ -110,7 +108,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
   }, []);
 
   const handleDiscountItem = useCallback((idx: number, value: string) => {
-    const numeric = parseFloat(value.replace(',', '.'));
+    const numeric = parseFloat(value.replace(/\./g, "").replace(",", "."));
     let discount = isNaN(numeric) ? 0 : numeric;
 
     setListItems(prev => {
@@ -138,7 +136,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
   const handleOnChangeListProduct = () => {
     const list = listItems
       .filter(item => item.product !== undefined && item.count !== undefined)
-      .map(({ idx, discountStr, ...rest }) => rest);
+      .map(({ idx, ...rest }) => rest);
     onChangeItems(list)
   };
 
@@ -237,13 +235,10 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
 
             const itemProduct = listItems.find(p => p.idx === index);
             const subtotal = ((itemProduct?.unitPrice ?? 0) - (itemProduct?.discount ?? 0)) * (itemProduct?.count ?? 0)
-
             return (<TableRow
               key={index}
             >
-              <TableCell
-                textAlign='center'
-              >
+              <TableCell textAlign='center'>
                 <Input
                   className="table_input_align"
                   fluid
@@ -262,9 +257,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
               </TableCell>
               <TableCell>
 
-                <div
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
+                <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Dropdown
                     inline
                     icon={null}
@@ -301,36 +294,18 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                   className="table_input_align"
                   fluid
                   transparent
-                  value={itemProduct?.discountStr ?? ""}
-                  onKeyDown={(event) => {
-                    const { key, currentTarget } = event;
-                    const value = currentTarget.value;
-
-                    const isNumber = /^[0-9]$/.test(key);
-                    const isComma = key === ',';
-                    const hasComma = value.includes(',');
-                    const isBackspace = key === 'Backspace';
-                    const decimalPart = value.split(',')[1] ?? '';
-                    const tooManyDecimals = hasComma && decimalPart.length >= 2;
-
-                    if (!isBackspace && ((!isNumber && !isComma) || (isComma && hasComma) || tooManyDecimals)) {
-                      event.preventDefault();
-                    }
-                  }}
+                  value={itemProduct?.discount === undefined ? "" : decimalFormat(itemProduct?.discount ?? 0)}
                   onChange={(event) => {
-                    handleDiscountItem(index, event.target.value);
+                    let value = event.target.value.replace(/\D/g, "")
+                    handleDiscountItem(index, decimalFormatMask(value));
                     handleCalculateTotals()
                   }}
-                  onBlur={(event) => {
-                    const value = parseFloat(event.target.value.replace(',', '.'));
-                    if (!isNaN(value)) {
-                      handleDiscountItem(index, value.toFixed(2).replace('.', ','));
-                      handleCalculateTotals()
-                    }
-                  }}
-                ></Input>
+                />
               </TableCell>
-              <TableCell textAlign='center' >
+              <TableCell
+                className={subtotal > 0 ? "" : "table_cell_red"}
+                textAlign='center'
+              >
                 {subtotal != 0 && decimalFormat(subtotal)}
               </TableCell>
             </TableRow>)
@@ -366,8 +341,8 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                 <div className="text_total">
                   Total da compra
                 </div>
-                {total > 0 &&
-                  <div className="text_total">
+                {total != 0 &&
+                  <div className={total > 0 ? "text_total" : "table_cell_red text_total"}>
                     {`R$ ${decimalFormat(total)}`}
                   </div>
                 }

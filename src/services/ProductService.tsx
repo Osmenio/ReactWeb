@@ -1,5 +1,5 @@
 import { ProductModel, ProductStatusEnum } from "../models";
-import { Database } from "./DatabaseClient";
+import { Database, formatError } from "./DatabaseClient";
 
 const ProductService = {
 
@@ -19,9 +19,10 @@ const ProductService = {
 
         return {
             products: list,
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -43,9 +44,10 @@ const ProductService = {
 
         return {
             products: list,
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -99,9 +101,10 @@ const ProductService = {
             .single();
 
         console.log(`add:error`, error)
-        return error?.details && error?.message
-            ? `${error.details}: ${error.message}`
-            : error?.details || error?.message || undefined
+        return formatError(error)
+        // return error?.details && error?.message
+        //     ? `${error.details}: ${error.message}`
+        //     : error?.details || error?.message || undefined
     },
 };
 

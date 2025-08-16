@@ -1,6 +1,6 @@
 import { FilterBalanceModel, ItemSaleModel, PaymentTypeEnum, ProductModel, SaleModel, UserProfileEnum, UserStatusEnum } from "../models";
 import { DefaultItemSaleModel, DefaultProductModel } from "../models/DefaultModels.tsx";
-import { Database } from "./DatabaseClient";
+import { Database, formatError } from "./DatabaseClient";
 
 const SaleService = {
 
@@ -64,9 +64,10 @@ const SaleService = {
         // console.log(`getAll:list`, list)
         return {
             sales: list,
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -90,6 +91,7 @@ const SaleService = {
                     unit_price,
                     discount,
                     buy_price,
+                    deleted_at,
                     product:product_id (
                     id,
                     name,
@@ -121,6 +123,8 @@ const SaleService = {
         if (filter.productId) {
             query = query.eq("ItemSale.product_id", filter.productId);
         }
+
+        query = query.is("ItemSale.deleted_at", null);
 
         const { data, error } = await query;
 
@@ -159,9 +163,10 @@ const SaleService = {
         // console.log(`getAllByFilter:list`, list)
         return {
             sales: list,
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -217,13 +222,34 @@ const SaleService = {
                 .eq('id', data.id);
 
             // console.log(`add:rollbackError`, rollbackError)
-            return itemsError?.details && itemsError?.message
-                ? `${itemsError.details}: ${itemsError.message}`
-                : itemsError?.details || itemsError?.message || undefined
+            return formatError(error)
+            // return itemsError?.details && itemsError?.message
+            //     ? `${itemsError.details}: ${itemsError.message}`
+            //     : itemsError?.details || itemsError?.message || undefined
 
         }
 
         return undefined; // sucesso
+    },
+
+    softDeleteItem: async (itemId: number): Promise<{ error: string | undefined }> => {
+        const dateNow = new Date().toISOString()
+        const { data, error } = await Database
+            .from("ItemSale")
+            .update({
+                "deleted_at": dateNow,
+            })
+            .eq("id", itemId)
+            .select("*")
+            .single()
+
+        // console.log(`add:sale:error`, error)
+        return {
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
+        }
     },
 };
 

@@ -36,6 +36,7 @@ const SalesPage = () => {
     if (error) {
       console.log(`getAllProduts`, error)
       setInfoModalSubtitle(`Falha ao carregar os produtos`)
+      setInfoModalPositiveBtn("")
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
