@@ -23,22 +23,39 @@
 
 .ui.table {
 
-  th {
+  th.table_header {
     padding: 10px !important;
-
   }
+}
 
-  td {
+.ui.table tbody {
+
+  td.table_cell_sale {
     padding: 10px !important;
   }
 }
 
 @media print {
 
-  .table_header {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    background-color: lightgray !important;
+  // .table_header {
+  //   -webkit-print-color-adjust: exact;
+  //   print-color-adjust: exact;
+  //   background-color: lightgray !important;
+  // }
+
+
+  .ui.table {
+
+    th.table_header {
+      padding: 0px !important;
+    }
+  }
+
+  .ui.table tbody {
+
+    td.table_cell_sale {
+      padding: 2px !important;
+    }
   }
 
   .no_print {

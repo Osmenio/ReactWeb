@@ -3,13 +3,14 @@ import './ProductModal.scss';
 import { useCallback, useEffect, useState } from 'react';
 import { ProductStatusEnum } from '../../models/ProductStatusEnum';
 import { ProductModel } from '../../models';
-import { decimalFormat } from '../../utils/format-utils';
+import { decimalFormat, decimalFormatMask } from '../../utils/format-utils';
 
 interface DecimalInputProps {
-  value: string;
+  value: number;
   error: string
-  onChange?: (value: string) => void;
+  onChange?: (value: number) => void;
 }
+
 const DecimalInput = ({
   value,
   error,
@@ -17,38 +18,17 @@ const DecimalInput = ({
 }: DecimalInputProps) => {
   return (
     <div>
-
       <Input
-        error={error.trim() !== ""}
         className="product_modal_input"
         fluid
-        placeholder="0,00"
-        value={value}
-        onKeyDown={(event) => {
-          const { key, currentTarget } = event;
-          const value = currentTarget.value;
-
-          const isNumber = /^[0-9]$/.test(key);
-          const isComma = key === ',';
-          const hasComma = value.includes(',');
-          const isBackspace = key === 'Backspace';
-          const decimalPart = value.split(',')[1] ?? '';
-          const tooManyDecimals = hasComma && decimalPart.length >= 2;
-
-          if (!isBackspace && ((!isNumber && !isComma) || (isComma && hasComma) || tooManyDecimals)) {
-            event.preventDefault();
-          }
-        }}
+        value={decimalFormat(value)}
         onChange={(event) => {
-          onChange(event.target.value)
+          let value = event.target.value.replace(/\D/g, "")
+          const numeric = parseFloat(value) / 100;
+          let input = isNaN(numeric) ? 0 : numeric;
+          onChange(input);
         }}
-        onBlur={(event) => {
-          const value = parseFloat(event.target.value.replace(',', '.'));
-          if (!isNaN(value)) {
-            onChange(value.toFixed(2).replace('.', ','))
-          }
-        }}
-      ></Input>
+      />
       {error.trim() !== "" && <div style={{ color: 'red' }}>
         {error}
       </div>}
@@ -60,7 +40,6 @@ const productStatus = Object.entries(ProductStatusEnum).map(([key, value]) => ({
   key: key,
   text: value,
   value: value,
-  color: 'red',
 }));
 
 interface ProductModalProps {
@@ -85,10 +64,10 @@ const ProductModal = ({
 
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState<ProductStatusEnum | undefined>();
-  const [buyPrice, setBuyPrice] = useState("");
-  const [priceOne, setPriceOne] = useState("");
-  const [priceTwo, setPriceTwo] = useState("");
-  const [priceThree, setPriceThree] = useState("");
+  const [buyPrice, setBuyPrice] = useState(0);
+  const [priceOne, setPriceOne] = useState(0);
+  const [priceTwo, setPriceTwo] = useState(0);
+  const [priceThree, setPriceThree] = useState(0);
 
   const [errorDescription, setErrorDescription] = useState("");
   const [errorStatus, setErrorStatus] = useState("");
@@ -101,23 +80,22 @@ const ProductModal = ({
     if (open) {
       setDescription(item?.description?.trim() || "");
       setStatus(item?.status || undefined)
-      setBuyPrice(item?.buyPrice && decimalFormat(item?.buyPrice) || "")
-      setPriceOne(item?.priceOne && decimalFormat(item?.priceOne) || "")
-      setPriceTwo(item?.priceTwo && decimalFormat(item?.priceTwo) || "")
-      setPriceThree(item?.priceThree && decimalFormat(item?.priceThree) || "")
+      setBuyPrice(item?.buyPrice ?? 0)
+      setPriceOne(item?.priceOne ?? 0)
+      setPriceTwo(item?.priceTwo ?? 0)
+      setPriceThree(item?.priceThree ?? 0)
     }
   }, [open]);
 
   const handleSave = useCallback(() => {
     if (isValidFields()) {
       onPositiveBtn({
-        // id: 0,
-        ...(item?.id ? { id: item.id } : {id: 0}),
+        ...(item?.id ? { id: item.id } : { id: 0 }),
         description: description,
-        buyPrice: Number(buyPrice.replace(',', '.')),
-        priceOne: Number(priceOne.replace(',', '.')),
-        priceTwo: Number(priceTwo.replace(',', '.')),
-        priceThree: Number(priceThree.replace(',', '.')),
+        buyPrice: buyPrice,
+        priceOne: priceOne,
+        priceTwo: priceTwo,
+        priceThree: priceThree,
         status: status as ProductStatusEnum,
       })
       cleanAll()
@@ -136,34 +114,20 @@ const ProductModal = ({
       setErrorStatus(error)
       isValid = false
     }
-    if (buyPrice.trim() === "") {
+    if (buyPrice === 0) {
       setErrorBuyPrice(error)
       isValid = false
     }
-    if (priceOne.trim() === "") {
-      setErrorPriceOne(error)
-      isValid = false
-    }
-    if (priceTwo.trim() === "") {
-      setErrorPriceTwo(error)
-      isValid = false
-    }
-    if (priceThree.trim() === "") {
-      setErrorPriceThree(error)
-      isValid = false
-    }
-
     return isValid;
   }, [description, status, buyPrice, priceOne, priceTwo, priceThree]);
-
 
   const cleanAll = () => {
     setDescription("")
     setStatus(undefined)
-    setBuyPrice("")
-    setPriceOne("")
-    setPriceTwo("")
-    setPriceThree("")
+    setBuyPrice(0)
+    setPriceOne(0)
+    setPriceTwo(0)
+    setPriceThree(0)
 
     setErrorDescription("")
     setErrorStatus("")

@@ -3,10 +3,11 @@ import { InfoModal, LoadingModal, SalesTableHeader, TopPageTitle } from '../../c
 import { SalesTable } from '../../component/sales-table/SalesTable';
 import { Button } from 'semantic-ui-react';
 import "./SalesPage.scss"
-import { faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons';
+import { faMobile, faMoneyBill1Wave } from '@fortawesome/free-solid-svg-icons';
 import { ItemSaleModel, PaymentTypeEnum, ProductModel, SaleModel } from '../../models';
 import { ProductService, SaleService } from '../../services';
 import { useSessionContext } from '../../providers';
+import logo from '../../logo.svg';
 
 const SalesPage = () => {
 
@@ -30,6 +31,7 @@ const SalesPage = () => {
   const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
 
   const [loading, setLoading] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   const getAllProduts = async () => {
     const { products, error } = await ProductService.getAllInStock();
@@ -127,6 +129,17 @@ const SalesPage = () => {
     return !invalidList && validList
   }, [listItems]);
 
+  const handlePrint = useCallback(() => {
+    setPrinting(true)
+  }, []);
+
+  useEffect(() => {
+    if (printing) {
+      window.print()
+      setPrinting(false)
+    }
+  }, [printing]);
+
   useEffect(() => {
     setLoading(true)
     getAllProduts();
@@ -134,8 +147,10 @@ const SalesPage = () => {
 
   return <>
     < TopPageTitle
-      title={"Vendas"}
-      icon={faMoneyBill1Wave} />
+      title={printing ? "Nome da Empresa" : "Vendas"}
+      icon={!printing ? faMoneyBill1Wave : undefined}
+      logo={printing ? logo : undefined}
+    />
 
     <div className="header_margin">
       <SalesTableHeader
@@ -192,7 +207,10 @@ const SalesPage = () => {
         </Button>
         <Button
           className="button_size"
-          onClick={() => window.print()}
+          onClick={() => {
+            handlePrint()
+            // window.print()
+          }}
         >
           Imprimir
         </Button>

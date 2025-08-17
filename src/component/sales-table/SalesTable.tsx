@@ -238,7 +238,9 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
             return (<TableRow
               key={index}
             >
-              <TableCell textAlign='center'>
+              <TableCell
+                className="table_cell_sale"
+                textAlign='center'>
                 <Input
                   className="table_input_align"
                   fluid
@@ -255,8 +257,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                   }}
                 ></Input>
               </TableCell>
-              <TableCell>
-
+              <TableCell className="table_cell_sale">
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <Dropdown
                     inline
@@ -286,10 +287,14 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                   }
                 </div>
               </TableCell>
-              <TableCell textAlign='center' >
+              <TableCell
+                className="table_cell_sale"
+                textAlign='center' >
                 {itemProduct?.product && itemProduct?.unitPrice && decimalFormat(itemProduct?.unitPrice)}
               </TableCell>
-              <TableCell textAlign='center' >
+              <TableCell
+                className="table_cell_sale"
+                textAlign='center' >
                 <Input
                   className="table_input_align"
                   fluid
@@ -303,7 +308,7 @@ const SalesTable = forwardRef((props: SalesTableProps, ref) => {
                 />
               </TableCell>
               <TableCell
-                className={subtotal > 0 ? "" : "table_cell_red"}
+                className={subtotal > 0 ? "table_cell_sale" : "table_cell_sale table_cell_red"}
                 textAlign='center'
               >
                 {subtotal != 0 && decimalFormat(subtotal)}
