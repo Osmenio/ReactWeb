@@ -1,7 +1,7 @@
 import { UserProfileEnum, UserStatusEnum } from ".";
 
 export interface UserModel {
-    id: number;
+    id: string;
     name: string;
     login: string;
     password: string;

@@ -44,6 +44,31 @@ const UserService = {
         };
     },
 
+    getUserById: async (userId: string): Promise<{ user: UserModel | undefined; error: string | undefined }> => {
+        const { data, error } = await Database
+            .from("User")
+            .select("*")
+            .eq("id", userId)
+            .single();
+
+        // console.log(`getUser:`, error)
+        return {
+            user: data ? {
+                id: data.id,
+                name: data.name,
+                login: data.login,
+                password: data.password,
+                profile: data.profile as UserProfileEnum,
+                status: data.status as UserStatusEnum,
+            } : undefined,
+            // error: error?.details
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
+        };
+    },
+
     updateUser: async (user: UserModel): Promise<{ user: UserModel | undefined; error: string | undefined }> => {
         const { data, error } = await Database
             .from("User")
@@ -76,6 +101,7 @@ const UserService = {
 
     addUser: async (user: UserModel): Promise<string | undefined> => {
         const newUser = {
+            id: user.id,
             name: user.name,
             login: user.login,
             password: user.password,
@@ -96,6 +122,16 @@ const UserService = {
         //     ? `${error.details}: ${error.message}`
         //     : error?.details || error?.message || undefined
     },
+
+    // addProfile: async (user: UserModel): Promise<string | undefined> => {
+    //     const { error } = await Database.auth.admin.createUser({
+    //         email: "user@fake.local", // pode ser qualquer string válida
+    //         password: "123456",
+    //         email_confirm: true, // pula a confirmação
+    //     });
+
+    //     return formatError(error)
+    // },
 };
 
 export { UserService };

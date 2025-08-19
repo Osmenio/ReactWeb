@@ -6,9 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface LoginModalProps {
   open: boolean;
-  user?: string;
-  password?: string;
-  confirmPassword?: string;
+  // title?: string;
+  // user?: string;
+  // password?: string;
+  // confirmPassword?: string;
   showConfirmPassword?: boolean;
   error?: string;
   onClick?: (params: {
@@ -19,17 +20,18 @@ interface LoginModalProps {
 
 const LoginModal = ({
   open,
-  user,
-  password,
-  confirmPassword,
+  // title,
+  // user,
+  // password,
+  // confirmPassword,
   showConfirmPassword,
   error,
   onClick = () => { },
 }: LoginModalProps) => {
 
-  const [login, setLogin] = useState(user || "");
-  const [pwd, setPwd] = useState(password || "");
-  const [confirmPwd, setConfirmPwd] = useState(confirmPassword || "");
+  const [login, setLogin] = useState("");
+  const [pwd, setPwd] = useState("");
+  const [confirmPwd, setConfirmPwd] = useState("");
 
   const [errorLogin, setErrorLogin] = useState(false);
   const [errorPwd, setErrorPwd] = useState(false);
@@ -70,6 +72,13 @@ const LoginModal = ({
     setConfirmPwd("")
   };
 
+  useEffect(() => {
+    if (showConfirmPassword) {
+      setPwd("")
+      setConfirmPwd("")
+    }
+  }, [showConfirmPassword]);
+
   return (
     <Modal
       className="modal_size"
@@ -88,6 +97,13 @@ const LoginModal = ({
           >
             Nome da Empresa
           </div>
+          
+          {showConfirmPassword &&
+            <div className="modal_subtitle">
+              Primeiro acesso!
+              Por favor, altere a senha.
+            </div>
+          }
 
           <div>
             Usuário *

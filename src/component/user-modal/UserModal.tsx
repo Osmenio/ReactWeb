@@ -50,7 +50,7 @@ const UserModal = ({
   const handleSave = useCallback(() => {
     if (isValidFields()) {
       onPositiveBtn({
-        id: item?.id ?? 0,
+        id: item?.id ?? "0",
         name,
         login,
         password: item?.password ?? "123",

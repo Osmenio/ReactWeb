@@ -189,7 +189,7 @@ const SaleService = {
             .select("id")
             .single();
 
-        // console.log(`add:sale:error`, error)
+        console.log(`add:sale:error`, error)
         if (error || !data) {
             return error?.details && error?.message
                 ? `${error.details}: ${error.message}`
@@ -221,7 +221,7 @@ const SaleService = {
                 .delete()
                 .eq('id', data.id);
 
-            // console.log(`add:rollbackError`, rollbackError)
+            console.log(`add:rollbackError`, rollbackError)
             return formatError(error)
             // return itemsError?.details && itemsError?.message
             //     ? `${itemsError.details}: ${itemsError.message}`

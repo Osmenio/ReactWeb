@@ -1,4 +1,13 @@
-import { ItemSaleModel, ProductModel, ProductStatusEnum } from "."
+import { ItemSaleModel, ProductModel, ProductStatusEnum, UserModel, UserProfileEnum, UserStatusEnum } from "."
+
+export const DefaultUserModel: UserModel = {
+    id: "0",
+    name: "Default",
+    login: "",
+    password: "",
+    profile: UserProfileEnum.Admin,
+    status: UserStatusEnum.Active
+}
 
 export const DefaultProductModel: ProductModel = {
     id: 0,

@@ -1,7 +1,7 @@
 import { PaymentTypeEnum } from ".";
 
 export interface FilterBalanceModel {
-  userId?: number,
+  userId?: string,
   client?: string,
   paymentType?: PaymentTypeEnum,
   startDate?: number,

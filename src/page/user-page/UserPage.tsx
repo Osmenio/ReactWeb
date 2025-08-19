@@ -5,7 +5,7 @@ import "./UserPage.scss"
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { ActionEnum, UserModel, UserProfileEnum, UserStatusEnum } from '../../models';
 import { UserModal } from '../../component/user-modal/UserModal';
-import { UserService } from '../../services';
+import { AuthService, UserService } from '../../services';
 import { useSessionContext } from '../../providers';
 
 const productStatus = Object.entries(UserStatusEnum).map(([key, value]) => ({
@@ -64,12 +64,15 @@ const UserPage = () => {
   };
 
   const saveUser = async (user: UserModel) => {
-    const newUser = {
-      ...user,
-      password: "123",
-      status: UserStatusEnum.FirstAccess
-    }
-    const error = await UserService.addUser(newUser);
+    // const newUser = {
+    //   ...user,
+    //   password: "123456",
+    //   status: UserStatusEnum.FirstAccess
+    // }
+    // const error = await UserService.addUser(newUser);
+    const error = await UserService.addUser(user);
+    // const error = await UserService.addProfile(newUser);
+    // const error = await AuthService.signUp(`${user.name}@gmail.com`, `123456`);
     if (error) {
       console.log(`saveUser`, error)
       setAction(ActionEnum.None)
@@ -85,6 +88,32 @@ const UserPage = () => {
       setInfoModalOpen(true)
     }
     getAllUsers()
+  };
+
+  const signUp = async (user: UserModel) => {
+    const { userId, error } = await AuthService.signUp(`${user.login}@gmail.com`, `123456`);
+    if (error) {
+      console.log(`signUp`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao salvar o usuário`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      const newUser: UserModel = {
+        ...user,
+        id: userId ?? "0",
+        password: "123456",
+        status: UserStatusEnum.FirstAccess
+      }
+      saveUser(newUser)
+      // setAction(ActionEnum.None)
+      // setInfoModalSubtitle(`Usuário salvo com sucesso`)
+      // setInfoModalPositiveBtn("Ok")
+      // setInfoModalNegativeBtn("")
+      // setInfoModalOpen(true)
+    }
+    // getAllUsers()
   };
 
   const updateUser = async (user: UserModel) => {
@@ -202,7 +231,8 @@ const UserPage = () => {
         setLoading(true)
         setUserModalOpen(false)
         if (action === ActionEnum.Add) {
-          saveUser(item)
+          signUp(item)
+          // saveUser(item)
         } else {
           console.log(`UserModal:editUser`, editUser)
           updateUser(item)
