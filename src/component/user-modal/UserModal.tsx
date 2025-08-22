@@ -53,7 +53,6 @@ const UserModal = ({
         id: item?.id ?? "0",
         name,
         login,
-        password: item?.password ?? "123",
         profile: profile ?? UserProfileEnum.Sales,
         status: status ?? UserStatusEnum.FirstAccess,
       })

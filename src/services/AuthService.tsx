@@ -3,108 +3,11 @@ import { Database, formatError } from "./DatabaseClient";
 
 const AuthService = {
 
-    // getAllUser: async (): Promise<{ users: UserModel[], error: string | undefined }> => {
-    //     const { data, error } = await Database
-    //         .from("User").select("*")
-
-    //     // console.log(`getAllUser:`, error)
-    //     return {
-    //         users: data ?? [],
-    //         // error: error?.message
-    //         // error: error?.details && error?.message
-    //         //     ? `${error.details}: ${error.message}`
-    //         //     : error?.details || error?.message || undefined
-    //         error: formatError(error)
-    //     };
-    // },
-
-    // getUser: async (login: string, pwd: string): Promise<{ user: UserModel | undefined; error: string | undefined }> => {
-    //     const { data, error } = await Database
-    //         .from("User")
-    //         .select("*")
-    //         .eq("login", login)
-    //         .eq("password", pwd)
-    //         .single();
-
-    //     // console.log(`getUser:`, error)
-    //     return {
-    //         user: data ? {
-    //             id: data.id,
-    //             name: data.name,
-    //             login: data.login,
-    //             password: data.password,
-    //             profile: data.profile as UserProfileEnum,
-    //             status: data.status as UserStatusEnum,
-    //         } : undefined,
-    //         // error: error?.details
-    //         // error: error?.details && error?.message
-    //         //     ? `${error.details}: ${error.message}`
-    //         //     : error?.details || error?.message || undefined
-    //         error: formatError(error)
-    //     };
-    // },
-
-    // updateUser: async (user: UserModel): Promise<{ user: UserModel | undefined; error: string | undefined }> => {
-    //     const { data, error } = await Database
-    //         .from("User")
-    //         .update({
-    //             "name": user.name,
-    //             "login": user.login,
-    //             "password": user.password,
-    //             "profile": user.profile,
-    //             "status": user.status,
-    //         })
-    //         .eq("id", user.id)
-    //         .select("*")
-    //         .single()
-
-    //     // console.log(`updateUser:`, error)
-    //     return {
-    //         user: data ? {
-    //             id: data.id,
-    //             name: data.name,
-    //             login: data.login,
-    //             password: data.password,
-    //             profile: data.profile as UserProfileEnum,
-    //             status: data.status as UserStatusEnum,
-    //         } : undefined,
-    //         error: error?.details && error?.message
-    //             ? `${error.details}: ${error.message}`
-    //             : error?.details || error?.message || undefined
-    //     };
-    // },
-
-    // addUser: async (user: UserModel): Promise<string | undefined> => {
-    //     const newUser = {
-    //         name: user.name,
-    //         login: user.login,
-    //         password: user.password,
-    //         profile: user.profile,
-    //         status: user.status,
-    //     }
-    //     // console.log(`addUser:user`, user)
-    //     // console.log(`addUser:newUser`, newUser)
-    //     const { error } = await Database
-    //         .from("User")
-    //         .insert([newUser])
-    //         .single();
-
-    //     // console.log(`addUser:error`, error)
-    //     // return error?.details
-    //     return formatError(error)
-    //     // error?.details && error?.message
-    //     //     ? `${error.details}: ${error.message}`
-    //     //     : error?.details || error?.message || undefined
-    // },
-
     signIn: async (email: string, password: string): Promise<{ userId: string | undefined; error: string | undefined }> => {
         const { data, error } = await Database.auth.signInWithPassword({
             email,
             password,
         });
-
-
-        // console.log(`signIn:data`, data)
         return {
             userId: data.user ? data.user.id : undefined,
             error: formatError(error)
@@ -121,7 +24,6 @@ const AuthService = {
         });
 
         console.log(`signUp:data`, data)
-        // return formatError(error)
         return {
             userId: data.user ? data.user.id : undefined,
             error: formatError(error)
@@ -136,7 +38,6 @@ const AuthService = {
         });
 
         console.log(`error:data`, data)
-        // return formatError(error)
         return {
             userId: data.user ? data.user.id : undefined,
             error: formatError(error)

@@ -6,12 +6,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface LoginModalProps {
   open: boolean;
-  // title?: string;
-  // user?: string;
-  // password?: string;
-  // confirmPassword?: string;
   showConfirmPassword?: boolean;
   error?: string;
+  onBackClick?: () => void;
   onClick?: (params: {
     login: string;
     password: string;
@@ -20,12 +17,9 @@ interface LoginModalProps {
 
 const LoginModal = ({
   open,
-  // title,
-  // user,
-  // password,
-  // confirmPassword,
   showConfirmPassword,
   error,
+  onBackClick = () => { },
   onClick = () => { },
 }: LoginModalProps) => {
 
@@ -97,7 +91,7 @@ const LoginModal = ({
           >
             Nome da Empresa
           </div>
-          
+
           {showConfirmPassword &&
             <div className="modal_subtitle">
               Primeiro acesso!
@@ -185,6 +179,14 @@ const LoginModal = ({
             Entrar
           </Button>
 
+          {showConfirmPassword &&
+            <div
+              className='modal_text'
+              onClick={() => onBackClick()}
+            >
+              ---  Voltar ao login  ---
+            </div>
+          }
         </div>
       </div>
     </Modal>

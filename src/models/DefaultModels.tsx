@@ -4,7 +4,7 @@ export const DefaultUserModel: UserModel = {
     id: "0",
     name: "Default",
     login: "",
-    password: "",
+    // password: "",
     profile: UserProfileEnum.Admin,
     status: UserStatusEnum.Active
 }

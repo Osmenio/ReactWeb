@@ -39,7 +39,7 @@ const SaleService = {
                 id: sale.user.id,
                 name: sale.user.name,
                 login: sale.user.login,
-                password: "",
+                // password: "",
                 profile: UserProfileEnum.Admin,
                 status: UserStatusEnum.Active
             },
@@ -136,7 +136,7 @@ const SaleService = {
                 id: sale.user.id,
                 name: sale.user.name,
                 login: sale.user.login,
-                password: "",
+                // password: "",
                 profile: UserProfileEnum.Admin,
                 status: UserStatusEnum.Active
             },
