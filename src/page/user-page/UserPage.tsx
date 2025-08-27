@@ -3,7 +3,7 @@ import { InfoModal, LoadingModal, TopPageTitle, UserTable } from '../../componen
 import { Button, Dropdown, Input } from 'semantic-ui-react';
 import "./UserPage.scss"
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { ActionEnum, UserModel, UserProfileEnum, UserStatusEnum } from '../../models';
+import { ActionEnum, UserModel, UserStatusEnum } from '../../models';
 import { UserModal } from '../../component/user-modal/UserModal';
 import { AuthService, UserService } from '../../services';
 import { useSessionContext } from '../../providers';
@@ -46,7 +46,7 @@ const UserPage = () => {
     setListUserFilter(list)
   }, [listUser, search, status]);
 
-  const getAllUsers = async () => {
+  const getAllUsers = useCallback(async () => {
     const { users, error } = await UserService.getAllUser();
     if (error) {
       console.log(`getAllUsers`, error)
@@ -61,9 +61,9 @@ const UserPage = () => {
       setListUserFilter(list || []);
     }
     setLoading(false)
-  };
+  }, []);
 
-  const saveUser = async (user: UserModel) => {
+  const saveUser = useCallback(async (user: UserModel) => {
     const error = await UserService.addUser(user);
     if (error) {
       console.log(`saveUser`, error)
@@ -80,9 +80,9 @@ const UserPage = () => {
       setInfoModalOpen(true)
     }
     getAllUsers()
-  };
+  }, [getAllUsers]);
 
-  const updateUser = async (user: UserModel) => {
+  const updateUser = useCallback(async (user: UserModel) => {
     const { error } = await UserService.updateUser(user);
     if (error) {
       console.log(`updateUser:`, error)
@@ -99,9 +99,9 @@ const UserPage = () => {
       setInfoModalOpen(true)
     }
     getAllUsers()
-  };
+  }, [getAllUsers]);
 
-  const signUp = async (user: UserModel) => {
+  const signUp = useCallback(async (user: UserModel) => {
     const { userId, error } = await AuthService.signUp(`${user.login}@gmail.com`, `123456`);
     if (error) {
       console.log(`signUp`, error)
@@ -119,7 +119,7 @@ const UserPage = () => {
       }
       saveUser(newUser)
     }
-  };
+  }, [saveUser]);
 
   const filterAdm = (users: UserModel[]) => {
     return users.filter(p => p.name !== "Adm")
@@ -127,12 +127,12 @@ const UserPage = () => {
 
   useEffect(() => {
     handleFilterProducts();
-  }, [search, status]);
+  }, [search, status, handleFilterProducts]);
 
   useEffect(() => {
     setLoading(true)
     getAllUsers();
-  }, []);
+  }, [setLoading, getAllUsers]);
 
   return <>
     <TopPageTitle

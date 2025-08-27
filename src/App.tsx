@@ -15,7 +15,7 @@ const App = () => {
 
   const handleMenuToggle = useCallback(() => {
     setIsMenuOpen((prev) => !prev);
-  }, [isMenuOpen]);
+  }, []);
 
   useEffect(() => {
     if (!loading && !session?.user) {

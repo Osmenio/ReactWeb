@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { useNavigate } from "react-router-dom"
 import { LoadingModal, LoginModal } from '../component';
 import { UserService } from '../services/UserService';
-import { DefaultUserModel, UserModel, UserProfileEnum, UserStatusEnum } from '../models';
+import { DefaultUserModel, UserModel, UserStatusEnum } from '../models';
 import { useSessionContext } from '../providers';
 import { AuthService } from '../services';
 
@@ -16,16 +16,16 @@ const HomePage = () => {
   const [loggedUser, setLoggerUser] = useState(DefaultUserModel);
   const [loading, setLoading] = useState(false);
 
-  const getUserById = async (userId: string) => {
+  const getUserById = useCallback(async (userId: string) => {
     const { user, error } = await UserService.getUserById(userId);
     if (error) {
       setError("Usuário não encontrado")
       setConfirmPassword(false)
-    } else if (user?.status == UserStatusEnum.FirstAccess) {
+    } else if (user?.status === UserStatusEnum.FirstAccess) {
       setLoggerUser(user)
       setError("")
       setConfirmPassword(true)
-    } else if (user?.status == UserStatusEnum.Active) {
+    } else if (user?.status === UserStatusEnum.Active) {
       setSession(
         {
           ...session,
@@ -35,13 +35,13 @@ const HomePage = () => {
       setOpen(false);
       setConfirmPassword(false)
       navigate('/product');
-    } else if (user?.status == UserStatusEnum.Inactive) {
+    } else if (user?.status === UserStatusEnum.Inactive) {
       setError("Usuário inativo")
     }
     setLoading(false)
-  };
+  }, [session, setSession, navigate]);
 
-  const updateUser = async (userId: string) => {
+  const updateUser = useCallback(async (userId: string) => {
 
     const newUser: UserModel = {
       ...loggedUser,
@@ -53,7 +53,7 @@ const HomePage = () => {
     if (error) {
       setError("Falha ao atualizar o usuário")
       setConfirmPassword(false)
-    } else if (user?.status == UserStatusEnum.Active) {
+    } else if (user?.status === UserStatusEnum.Active) {
       setSession(
         {
           ...session,
@@ -65,9 +65,9 @@ const HomePage = () => {
       navigate('/product');
     }
     setLoading(false)
-  };
+  }, [loggedUser, session, setSession, navigate]);
 
-  const authUpdate = async (password: string) => {
+  const authUpdate = useCallback(async (password: string) => {
     const { userId, error } = await AuthService.update(password);
     if (error) {
       console.log(`signUp:`, error)
@@ -77,9 +77,9 @@ const HomePage = () => {
     } else {
       updateUser(userId ?? "0")
     }
-  };
+  }, [updateUser]);
 
-  const signIn = async (login: string, password: string) => {
+  const signIn = useCallback(async (login: string, password: string) => {
     const { userId, error } = await AuthService.signIn(`${login}@gmail.com`, password);
     if (error) {
       console.log(`signIn:`, error)
@@ -89,7 +89,7 @@ const HomePage = () => {
     } else {
       getUserById(userId ?? "0")
     }
-  };
+  }, [getUserById]);
 
   const handleUser = useCallback((login, password) => {
     setLoading(true)
@@ -98,7 +98,7 @@ const HomePage = () => {
     } else {
       signIn(login, password)
     }
-  }, [isConfirmPassword]);
+  }, [isConfirmPassword, authUpdate, signIn]);
 
   return (
     <>
