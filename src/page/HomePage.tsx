@@ -17,9 +17,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
 
   const getUserById = async (userId: string) => {
-    console.log(`getUserById:`, userId)
     const { user, error } = await UserService.getUserById(userId);
-    console.log(`getUserById:`, user, session)
     if (error) {
       setError("Usuário não encontrado")
       setConfirmPassword(false)
@@ -28,7 +26,6 @@ const HomePage = () => {
       setError("")
       setConfirmPassword(true)
     } else if (user?.status == UserStatusEnum.Active) {
-      console.log(`getUserById.session:`, session)
       setSession(
         {
           ...session,
@@ -71,9 +68,6 @@ const HomePage = () => {
   };
 
   const authUpdate = async (password: string) => {
-    // console.log(`signUp:login:`, login)
-    // console.log(`signUp:pwd:`, pwd)
-
     const { userId, error } = await AuthService.update(password);
     if (error) {
       console.log(`signUp:`, error)
@@ -86,9 +80,6 @@ const HomePage = () => {
   };
 
   const signIn = async (login: string, password: string) => {
-    // console.log(`signUp:login:`, login)
-    // console.log(`signUp:pwd:`, pwd)
-
     const { userId, error } = await AuthService.signIn(`${login}@gmail.com`, password);
     if (error) {
       console.log(`signIn:`, error)

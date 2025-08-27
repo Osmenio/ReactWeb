@@ -19,27 +19,17 @@
 .side-menu-container {
   z-index: 100;
   display: flex;
-  // background-color: bisque;
   max-width: 1024px;
   width: 100%;
   margin: 0 auto;
 }
 
 .side-menu {
-  // z-index: 10000;
   display: flex;
   margin: 0 auto;
-
-  // align-items: center;
-  // padding: 10px 20px;
-
-  // width: 250px;
   position: fixed;
   top: 80px;
   height: 0;
-  // left: -250px;
-  // left: 0;
-  // transition: left 0.3s ease;
   transition: height 0.3s ease, left 0.3s ease;
   background-color: white;
   box-shadow: $pt-elevation-shadow-3;
@@ -58,9 +48,7 @@
   }
 
   &.open {
-    // left: 250px;
-    height: 100vh;
-    // left: 250px;
+    height: 50vh;
   }
 
   .menu-toggle-container {
@@ -76,7 +64,6 @@
   .menu-items {
     width: 250px;
     padding: 0;
-    // padding: 10px;
     margin: 0px 0;
 
     ul {

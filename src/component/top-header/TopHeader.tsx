@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom';
-
 import './TopHeader.scss';
-import { MenuButton } from '..';
+import { InfoModal, MenuButton } from '..';
 import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { capitalizeFirstLetter } from '../../utils/format-utils';
-import { UserModel } from '../../models';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import logo from '../../logo.svg';
 import { useSessionContext } from '../../providers/SessionContext';
 
@@ -17,6 +15,7 @@ interface TopHeaderProps {
 
 const TopHeader = ({ isOpen, onMenuToggle }: TopHeaderProps) => {
   const { session, clearSession } = useSessionContext();
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
 
   return (
     <div className="top-container no_print">
@@ -42,19 +41,30 @@ const TopHeader = ({ isOpen, onMenuToggle }: TopHeaderProps) => {
           <strong>Olá, {capitalizeFirstLetter(session?.user?.name ?? "convidado")}!</strong>
         </div>
 
-        <Link to="/" className='user_no_link'>
-          <FontAwesomeIcon
-            icon={faArrowRightFromBracket}
-            size="2x"
-            style={{ marginLeft: '10px', marginRight: '10px' }}
-            onClick={() => {
-              console.log("FontAwesomeIcon")
-              // setSession(null)
-              clearSession()
-            }} />
-        </Link>
-
+        <FontAwesomeIcon
+          icon={faArrowRightFromBracket}
+          size="2x"
+          style={{ marginLeft: '10px', marginRight: '10px' }}
+          onClick={() => {
+            console.log("FontAwesomeIcon")
+            setInfoModalOpen(true)
+          }} />
       </header >
+
+      <InfoModal
+        open={infoModalOpen}
+        title="Atenção"
+        subtitle="Tem certeza que deseja sair?"
+        positiveBtnText="Sair"
+        negativeBtnText="Cancelar"
+        onPositiveBtn={() => {
+          setInfoModalOpen(false)
+          clearSession()
+        }}
+        onNegativeBtn={() => {
+          setInfoModalOpen(false)
+        }}
+      />
     </div>
   );
 };

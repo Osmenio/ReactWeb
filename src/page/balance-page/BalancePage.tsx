@@ -40,10 +40,10 @@ const BalancePage = () => {
   }
 
   const date = new Date();
+  date.setMonth(date.getMonth());
+  const endDate = format(date, "yyyy-MM-dd");
   date.setMonth(date.getMonth() - 1);
   const startDate = format(date, "yyyy-MM-dd");
-  date.setMonth(date.getMonth() + 4);
-  const endDate = format(date, "yyyy-MM-dd");
 
   const [client, setClient] = useState<string | undefined>(undefined);
   const [user, setUser] = useState<UserModel | undefined>(undefined);
