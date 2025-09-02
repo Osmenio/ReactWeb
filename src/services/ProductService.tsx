@@ -19,9 +19,6 @@ const ProductService = {
 
         return {
             products: list,
-            // error: error?.details && error?.message
-            //     ? `${error.details}: ${error.message}`
-            //     : error?.details || error?.message || undefined
             error: formatError(error)
         };
     },
@@ -44,9 +41,6 @@ const ProductService = {
 
         return {
             products: list,
-            // error: error?.details && error?.message
-            //     ? `${error.details}: ${error.message}`
-            //     : error?.details || error?.message || undefined
             error: formatError(error)
         };
     },
@@ -66,8 +60,8 @@ const ProductService = {
             .select("*")
             .single()
 
-        console.log(`update:product`, product)
-        console.log(`update:`, error)
+        // console.log(`update:product`, product)
+        // console.log(`update:`, error)
         return {
             product: data ? {
                 id: data.id,
@@ -78,9 +72,10 @@ const ProductService = {
                 priceThree: data.price_three,
                 status: data.status as ProductStatusEnum.InStock
             } : undefined,
-            error: error?.details && error?.message
-                ? `${error.details}: ${error.message}`
-                : error?.details || error?.message || undefined
+            // error: error?.details && error?.message
+            //     ? `${error.details}: ${error.message}`
+            //     : error?.details || error?.message || undefined
+            error: formatError(error)
         };
     },
 
@@ -93,18 +88,15 @@ const ProductService = {
             price_three: product.priceThree,
             status: product.status,
         }
-        console.log(`add:product`, product)
-        console.log(`add:newProduct`, newProduct)
+        // console.log(`add:product`, product)
+        // console.log(`add:newProduct`, newProduct)
         const { error } = await Database
             .from("Product")
             .insert([newProduct])
             .single();
 
-        console.log(`add:error`, error)
+        // console.log(`add:error`, error)
         return formatError(error)
-        // return error?.details && error?.message
-        //     ? `${error.details}: ${error.message}`
-        //     : error?.details || error?.message || undefined
     },
 };
 

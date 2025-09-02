@@ -136,14 +136,14 @@ const SaleService = {
                 id: sale.user.id,
                 name: sale.user.name,
                 login: sale.user.login,
-                // password: "",
                 profile: UserProfileEnum.Admin,
                 status: UserStatusEnum.Active
             },
             client: sale.client,
             address: sale.address,
             paymentType: sale.payment_type,
-            timestamp: sale.timestamp,
+            // timestamp: sale.timestamp,
+            timestamp: sale.timestamp ? new Date(sale.timestamp).getTime() : 0,
             itemsSale: sale.itemsSale.map((item: any): ItemSaleModel => ({
                 ...DefaultItemSaleModel,
                 id: item.id,

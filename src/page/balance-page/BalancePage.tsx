@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { BalanceTable, BalanceTableHeader, InfoModal, LoadingModal, TopPageTitle } from '../../component';
 import "./BalancePage.scss"
 import { faCalculator } from '@fortawesome/free-solid-svg-icons';
-import { ActionEnum, FilterBalanceModel, ItemSaleModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
+import { ActionEnum, FilterBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
 import { format } from 'date-fns';
 import { ProductService, SaleService, UserService } from '../../services';
 
@@ -36,7 +36,7 @@ const BalancePage = () => {
         count: item.count ?? 0,
         unitPrice: item.unitPrice ?? 0,
         discount: item.discount ?? 0,
-      })))
+      }))).sort((a, b) => a.timestamp - b.timestamp);
   }
 
   const date = new Date();
