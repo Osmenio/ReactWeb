@@ -132,7 +132,7 @@ const UserPage = () => {
   useEffect(() => {
     setLoading(true)
     getAllUsers();
-  }, [setLoading, getAllUsers]);
+  }, []);
 
   return <>
     <TopPageTitle
