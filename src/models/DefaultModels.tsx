@@ -1,4 +1,4 @@
-import { ItemSaleModel, ProductModel, ProductStatusEnum, UserModel, UserProfileEnum, UserStatusEnum } from "."
+import { ItemSaleModel, ProductModel, ProductStatusEnum, SalesResumeModel, UserModel, UserProfileEnum, UserStatusEnum } from "."
 
 export const DefaultUserModel: UserModel = {
     id: "0",
@@ -25,4 +25,14 @@ export const DefaultItemSaleModel: ItemSaleModel = {
     buyPrice: 0,
     count: 0,
     unitPrice: 0
+}
+
+export const DefaultSalesResumeModel: SalesResumeModel = {
+    totalCount: 0,
+    totalBuy: 0,
+    totalSubBuy: 0,
+    totalSale: 0,
+    totaldDiscount: 0,
+    totalSubSale: 0,
+    totalDiff: 0
 }

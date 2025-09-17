@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { InfoModal, LoadingModal, ProductModal, ProductsTable, TopPageTitle } from '../../component';
 import { faBoxesStacked } from '@fortawesome/free-solid-svg-icons/faBoxesStacked';
-import { Button, Dropdown, Input } from 'semantic-ui-react';
+import { Button, Dropdown, Input, Pagination } from 'semantic-ui-react';
 import "./ProductsPage.scss"
 import { ProductModel } from '../../models/ProductModel';
 import { useSessionContext } from '../../providers';
@@ -35,6 +35,9 @@ const ProductsPage = () => {
   const [action, setAction] = useState(ActionEnum.None);
   const [loading, setLoading] = useState(false);
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const handleFilterProducts = useCallback(() => {
     const list = (search.trim() === "" && !status)
       ? listProduct
@@ -52,8 +55,12 @@ const ProductsPage = () => {
     setProductModalOpen(true)
   }, []);
 
-  const getAllProduts = async () => {
-    const { products, error } = await ProductService.getAll();
+  const handlePagination = useCallback((activePage: number) => {
+    loadAllProduts(activePage)
+  }, []);
+
+  const getAllProduts = useCallback(async (page: number = 1) => {
+    const { products, totalPages, error } = await ProductService.getAllWithPagination(page);
     if (error) {
       console.log(`getAllProduts`, error)
       setAction(ActionEnum.None)
@@ -64,9 +71,10 @@ const ProductsPage = () => {
     } else {
       setListProduct(products || []);
       setListProductFilter(products || []);
+      setTotalPages(totalPages)
     }
     setLoading(false)
-  };
+  }, []);
 
   const saveProduct = async (product: ProductModel) => {
     const error = await ProductService.add(product);
@@ -84,7 +92,7 @@ const ProductsPage = () => {
       setInfoModalNegativeBtn("")
       setInfoModalOpen(true)
     }
-    getAllProduts()
+    loadAllProduts()
   };
 
   const updateProduct = async (product: ProductModel) => {
@@ -103,16 +111,24 @@ const ProductsPage = () => {
       setInfoModalNegativeBtn("")
       setInfoModalOpen(true)
     }
-    getAllProduts()
+    loadAllProduts()
   };
+
+  const loadAllProduts = useCallback((page: number = 1) => {
+    setLoading(true);
+    setPage(page)
+    getAllProduts(page)
+    setSearch("")
+    setStatus(undefined)
+  }, []);
 
   useEffect(() => {
     handleFilterProducts();
   }, [search, status]);
 
   useEffect(() => {
-    setLoading(true)
-    getAllProduts();
+    setLoading(true);
+    loadAllProduts();
   }, []);
 
   return <>
@@ -128,6 +144,7 @@ const ProductsPage = () => {
         <Input
           className="products_search"
           placeholder="Buscar ..."
+          value={search}
           onChange={(event) => {
             setSearch(event.target.value)
           }}
@@ -138,6 +155,7 @@ const ProductsPage = () => {
           clearable
           placeholder="Situação"
           selection
+          value={status ?? ""}
           options={productStatus}
           onChange={(_, data) => {
             const status = data.value as ProductStatusEnum
@@ -180,6 +198,24 @@ const ProductsPage = () => {
           setInfoModalOpen(true)
         }}
       />
+
+      <div
+        style={{ display: "flex", justifyContent: "end", marginBottom: "20px" }}
+      >
+        <Pagination
+          boundaryRange={0}
+          defaultActivePage={page}
+          ellipsisItem={null}
+          firstItem={null}
+          lastItem={null}
+          siblingRange={1}
+          totalPages={totalPages}
+          secondary
+          onPageChange={(e, { activePage }) => {
+            handlePagination(activePage as number)
+          }}
+        />
+      </div>
     </div>
 
     <ProductModal

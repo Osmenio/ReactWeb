@@ -1,43 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { BalanceTable, BalanceTableHeader, InfoModal, LoadingModal, TopPageTitle } from '../../component';
+import { BalanceTable, BalanceTableHeader, BalanceTableResume, InfoModal, LoadingModal, TopPageTitle } from '../../component';
 import "./BalancePage.scss"
 import { faCalculator } from '@fortawesome/free-solid-svg-icons';
-import { ActionEnum, FilterBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, UserModel } from '../../models';
+import { ActionEnum, DefaultSalesResumeModel, FilterBalanceModel, ItemBalanceModel, PaymentTypeEnum, ProductModel, SaleModel, SalesResumeModel, UserModel } from '../../models';
 import { format } from 'date-fns';
 import { ProductService, SaleService, UserService } from '../../services';
-
-export interface ItemBalance {
-  id: number,
-  user: string,
-  client: string,
-  address: string,
-  paymentType: PaymentTypeEnum,
-  timestamp: number,
-  product: string;
-  buyPrice: number;
-  count: number;
-  unitPrice: number;
-  discount: number;
-}
+import { Pagination } from 'semantic-ui-react';
 
 const BalancePage = () => {
-
-  const getItemsBalance = (sales: SaleModel[]): ItemBalance[] => {
-    return sales.flatMap(sale =>
-      sale.itemsSale.map(item => ({
-        id: item.id ?? 0,
-        user: sale.user.name,
-        client: sale.client,
-        address: sale.address,
-        paymentType: sale.paymentType,
-        timestamp: sale.timestamp,
-        product: item.product.description,
-        buyPrice: item.buyPrice ?? 0,
-        count: item.count ?? 0,
-        unitPrice: item.unitPrice ?? 0,
-        discount: item.discount ?? 0,
-      }))).sort((a, b) => a.timestamp - b.timestamp);
-  }
 
   const date = new Date();
   date.setMonth(date.getMonth());
@@ -52,7 +22,8 @@ const BalancePage = () => {
   const [finalDate, setFinalDate] = useState<string>(endDate);
   const [paymentType, setPaymentType] = useState<PaymentTypeEnum | undefined>(undefined);
 
-  const [balanceList, setBalanceList] = useState<ItemBalance[]>([]);
+  const [balanceList, setBalanceList] = useState<ItemBalanceModel[]>([]);
+  const [salesResume, setSalesResume] = useState<SalesResumeModel>(DefaultSalesResumeModel);
   const [users, setUsers] = useState<UserModel[]>([]);
   const [listProduct, setListProduct] = useState<ProductModel[]>([]);
 
@@ -64,6 +35,8 @@ const BalancePage = () => {
   const [action, setAction] = useState(ActionEnum.None);
   const [editItemId, setEditItemId] = useState<number | undefined>();
 
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const getAllUsers = async () => {
@@ -92,8 +65,8 @@ const BalancePage = () => {
     }
   };
 
-  const getAllItems = async (filter: FilterBalanceModel) => {
-    const { sales, error } = await SaleService.getAllByFilter(filter);
+  const getAllItems = async (filter: FilterBalanceModel, page: number) => {
+    const { items, totalPages, error } = await SaleService.getAllByFilter(filter, page);
     if (error) {
       // console.log(`getAllItem:error`, error)
       setInfoModalSubtitle(`Falha ao carregar os dados`)
@@ -101,7 +74,22 @@ const BalancePage = () => {
       setInfoModalNegativeBtn("Ok")
       setInfoModalOpen(true)
     } else {
-      setBalanceList(getItemsBalance(sales || []));
+      setBalanceList(items);
+      setTotalPages(totalPages)
+    }
+    setLoading(false)
+  };
+
+  const getSalesResume = async (filter: FilterBalanceModel) => {
+    const { resume, error } = await SaleService.getSalesResume(filter);
+    if (error) {
+      // console.log(`getAllItem:error`, error)
+      setInfoModalSubtitle(`Falha ao carregar os dados`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setSalesResume(resume)
     }
     setLoading(false)
   };
@@ -126,7 +114,7 @@ const BalancePage = () => {
     handleSearch()
   };
 
-  const handleSearch = useCallback(() => {
+  const handleSearch = useCallback((page: number = 1) => {
     const filter: FilterBalanceModel = {
       userId: user?.id,
       client: client,
@@ -136,8 +124,14 @@ const BalancePage = () => {
       productId: product?.id
     }
 
-    getAllItems(filter)
+    getAllItems(filter, page)
+    getSalesResume(filter)
   }, [balanceList, client, user, product, initialDate, finalDate, paymentType]);
+
+  const handlePagination = useCallback((activePage: number) => {
+    setPage(activePage)
+    handleSearch(activePage)
+  }, [handleSearch]);
 
   useEffect(() => {
     setLoading(true)
@@ -184,6 +178,15 @@ const BalancePage = () => {
     </div>
 
     <div className="header_margin">
+      <h3>Resumo</h3>
+      <BalanceTableResume
+        item={salesResume}
+      />
+    </div>
+
+
+    <div className="header_margin">
+      <h3>Histórico</h3>
       <BalanceTable
         items={balanceList}
         onDelete={(item) => {
@@ -195,6 +198,23 @@ const BalancePage = () => {
           setInfoModalOpen(true)
         }}
       />
+
+      <div
+        style={{ display: "flex", justifyContent: "end", marginBottom: "20px" }}
+      >
+        <Pagination
+          boundaryRange={0}
+          ellipsisItem={null}
+          firstItem={null}
+          lastItem={null}
+          siblingRange={1}
+          totalPages={totalPages}
+          secondary
+          onPageChange={(e, { activePage }) => {
+            handlePagination(activePage as number)
+          }}
+        />
+      </div>
     </div>
 
     <InfoModal

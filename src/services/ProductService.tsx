@@ -1,6 +1,7 @@
 import { ProductModel, ProductStatusEnum } from "../models";
 import { Database, formatError } from "./DatabaseClient";
 
+const PAGE_SIZE = 10
 const ProductService = {
 
     getAll: async (): Promise<{ products: ProductModel[], error: string | undefined }> => {
@@ -19,6 +20,36 @@ const ProductService = {
 
         return {
             products: list,
+            error: formatError(error)
+        };
+    },
+
+    getAllWithPagination: async (
+        page: number = 1,
+        // pageSize: number = 20
+    ): Promise<{ products: ProductModel[], totalPages: number, error: string | undefined }> => {
+
+        const from = (page - 1) * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        const { data, count, error } = await Database
+            .from("Product")
+            .select("*", { count: "exact" })
+            .range(from, to);
+
+        const list = data ? data.map((item): ProductModel => ({
+            id: item.id,
+            description: item.name,
+            buyPrice: item.buy_price,
+            priceOne: item.price_one,
+            priceTwo: item.price_two,
+            priceThree: item.price_three,
+            status: item.status as ProductStatusEnum.InStock
+        })) : []
+
+        const totalPages = Math.max(1, Math.ceil((count ?? 0) / PAGE_SIZE));
+        return {
+            products: list,
+            totalPages: totalPages,
             error: formatError(error)
         };
     },
