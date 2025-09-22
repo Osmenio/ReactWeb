@@ -1,3 +1,4 @@
+export * from './ProductBestSellingByMonthChart.tsx'
 export * from './ProductByMonthChart.tsx'
 export * from './SalesByDayChart.tsx'
 export * from './SalesByMonthChart.tsx'

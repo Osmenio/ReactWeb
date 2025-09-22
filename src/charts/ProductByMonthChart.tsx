@@ -1,34 +1,32 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Line, CartesianGrid, ComposedChart, Legend } from "recharts";
 import { ProductByMonthModel } from "../models/ChartModels";
 import { Dropdown } from "semantic-ui-react";
 import { format } from "date-fns";
 import React from "react";
-
-const date = new Date();
-const monthYearOptions = [...Array(15)].map(key => {
-  const value = format(date, "MM/yyyy");
-  date.setMonth(date.getMonth() - 1)
-  return {
-    key: key,
-    text: value,
-    value: value,
-  }
-});
+import { ProductModel } from "../models";
+import { decimalFormat } from "../utils/format-utils";
 
 interface ProductByMonthChartProps {
   title: string;
-  monthYear: string;
+  selected?: ProductModel;
+  products: ProductModel[];
   items: ProductByMonthModel[];
-  onChangeMonthYear?: (value: string) => void;
+  onChangeProduct?: (selected: ProductModel) => void;
 }
 
 const ProductByMonthChart = React.memo(({
   title,
-  monthYear,
+  selected,
+  products,
   items,
-  onChangeMonthYear = () => { },
+  onChangeProduct = () => { },
 }: ProductByMonthChartProps) => {
-  // console.log(`ProductByMonthChart:`, items)
+
+  const productsOptions = products.map(item => ({
+    key: item.description,
+    value: item.description,
+    text: item.description,
+  }));
 
   return (
     <div
@@ -37,62 +35,98 @@ const ProductByMonthChart = React.memo(({
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h3> {title} </h3>
         <Dropdown
-          placeholder="Mês/Ano"
+          placeholder="Selecionar"
           selection
-          value={monthYear}
-          options={monthYearOptions}
+          search
+          value={selected?.description ?? ""}
+          options={productsOptions}
           onChange={(_, data) => {
-            onChangeMonthYear(data.value as string)
+            const value = data.value as string
+            const selected = products.find(p => p.description === value);
+            if (selected) onChangeProduct(selected)
           }}
         />
       </div>
 
-      <ResponsiveContainer>
-        <BarChart
-          data={items}
-          barCategoryGap="20%">
-          <XAxis dataKey="productName" />
-          <YAxis
-          // tickFormatter={(value: number) => `${value / 100}k`}
-          />
+      <ResponsiveContainer width="100%" height={400}>
+        <ComposedChart data={items}>
+          <XAxis dataKey="month" />
+
+          <YAxis yAxisId="left" orientation="left" />
+          <YAxis yAxisId="right" orientation="right" />
+
           <Tooltip
             formatter={(value: number, name: string) => {
               const labels: Record<string, string> = {
-                count: "Qtd.",
-                // totalSale: "Vendas",
-                // totalDiff: "Lucro",
+                count: "Quantidade",
+                totalBuy: "Compras",
+                totalSale: "Vendas",
+                totalDiff: "Lucro",
               }
-              return [value, labels[name] || name]
-              // return [`R$ ${decimalFormat(value / 1000)}k`, labels[name] || name]
+              if (name === "count") {
+                return [value, labels[name] || name]
+              }
+              return [`R$ ${decimalFormat(value / 1000)}k`, labels[name] || name]
             }}
             itemSorter={(item: any) => {
               const order: Record<string, number> = {
-                // totalBuy: 3,
-                count: 1,
+                totalBuy: 3,
                 totalSale: 2,
+                totalDiff: 1,
               }
               return order[item.dataKey] ?? 99
             }}
           />
-          {/* <Bar
-            dataKey="totalSale"
-            // fill="#98dfffff"
-            fill="#5c5c8c"
-            stackId="a"
-          /> */}
+          <Legend
+            formatter={(value: string) => {
+              const labels: Record<string, string> = {
+                count: "Quantidade",
+                totalBuy: "Compras",
+                totalSale: "Vendas",
+                totalDiff: "Lucro",
+              }
+              return [labels[value] || value]
+            }}
+            itemSorter={(item: any) => {
+              const order: Record<string, number> = {
+                totalBuy: 1,
+                totalSale: 2,
+                totalDiff: 3,
+              }
+              return order[item.dataKey] ?? 99
+            }}
+          />
+
           <Bar
-            dataKey="count"
-            // fill="#8884d8"
-            fill="#6fc776ff"
+            yAxisId="left"
+            dataKey="totalBuy"
+            fill="#ff9e71ff"
             stackId="a"
           />
-          {/* <Bar
-            dataKey="totalDiff"
-            // fill="#6fc776ff"
-            fill="#388cb9"
+
+          <Bar
+            yAxisId="left"
+            dataKey="totalSale"
+            fill="#84b9d8ff"
             stackId="a"
-          /> */}
-        </BarChart>
+          />
+
+          <Bar
+            yAxisId="left"
+            dataKey="totalDiff"
+            fill="#84d884ff"
+            stackId="a"
+          />
+
+          {/* Linha: quantidade */}
+          <Line
+            yAxisId="right"
+            type="monotone"
+            dataKey="count"
+            stroke="#9882caff"
+            strokeWidth={2}
+          />
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   );

@@ -1,22 +1,10 @@
-import { ProductByMonthModel, SalesByDayModel, SalesByMonthModel, SalesMonthByPaymentModel, SalesMonthByUserModel } from "../models/ChartModels.tsx";
+import { ProductBestSellingByMonthModel, ProductByMonthModel, SalesByDayModel, SalesByMonthModel, SalesMonthByPaymentModel, SalesMonthByUserModel } from "../models/ChartModels.tsx";
 import { Database, formatError } from "./DatabaseClient.tsx";
 
 const ChartService = {
 
     getSalesByMonth: async (): Promise<{ data: SalesByMonthModel[], error: string | undefined }> => {
         const { data, error } = await Database.rpc("sales_per_month");
-
-        //       id: item.id,
-        // description: item.name,
-        // buyPrice: item.buy_price,
-        // priceOne: item.price_one,
-        // priceTwo: item.price_two,
-
-        // const list = data ? data.map((item): SalesPerMonthModel => ({
-        //     month: item.mes,
-        //     total: item.
-        // })) : []
-
         // console.log(`getSalesPerMonth:`, data)
         return {
             data: data,
@@ -26,8 +14,6 @@ const ChartService = {
 
     getSalesByDay: async (month: string): Promise<{ data: SalesByDayModel[], error: string | undefined }> => {
         const { data, error } = await Database.rpc("sales_per_day", { p_month: month });
-
-        // console.log(`getSalesPerMonth:`, data)
         return {
             data: data,
             error: formatError(error)
@@ -50,8 +36,16 @@ const ChartService = {
         };
     },
 
-    getProductsByMonth: async (month: string): Promise<{ data: ProductByMonthModel[], error: string | undefined }> => {
-        const { data, error } = await Database.rpc("product_per_month", { p_month: month });
+    getProductsBestSellingByMonth: async (month: string): Promise<{ data: ProductBestSellingByMonthModel[], error: string | undefined }> => {
+        const { data, error } = await Database.rpc("product_best_selling_per_month", { p_month: month });
+        return {
+            data: data,
+            error: formatError(error)
+        };
+    },
+
+    getProductsByMonth: async (productId: number): Promise<{ data: ProductByMonthModel[], error: string | undefined }> => {
+        const { data, error } = await Database.rpc("product_per_month", { p_product_id: productId });
         return {
             data: data,
             error: formatError(error)

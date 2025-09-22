@@ -2,11 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { LoadingModal, TopPageTitle } from '../../component';
 import { faChartColumn } from '@fortawesome/free-solid-svg-icons/faChartColumn';
 import './DashboardPage.scss';
-import { ProductByMonthChart, SalesByDayChart, SalesByMonthChart, SalesMonthByPaymentChart, SalesMonthByUserChart } from '../../charts';
+import { ProductBestSellingByMonthChart, ProductByMonthChart, SalesByDayChart, SalesByMonthChart, SalesMonthByPaymentChart, SalesMonthByUserChart } from '../../charts';
 import { ChartService } from '../../services/ChartService';
 import { } from '../../charts/SalesByMonthChart';
-import { ProductByMonthModel, SalesByDayModel, SalesByMonthModel, SalesMonthByPaymentModel, SalesMonthByUserModel } from '../../models/ChartModels';
+import { ProductBestSellingByMonthModel, ProductByMonthModel, SalesByDayModel, SalesByMonthModel, SalesMonthByPaymentModel, SalesMonthByUserModel } from '../../models/ChartModels';
 import { format } from 'date-fns';
+import { ProductService } from '../../services';
+import { ProductModel } from '../../models';
 
 const DashboardPage = () => {
 
@@ -21,28 +23,33 @@ const DashboardPage = () => {
   const [salesByPayment, setSalesByPayment] = useState<SalesMonthByPaymentModel[]>([]);
   const [monthYearSalesByPayment, setMonthYearSalesByPayment] = useState<string>(format(new Date(), 'MM/yyyy'));
 
+  const [productBestByMonth, setProductBestByMonth] = useState<ProductBestSellingByMonthModel[]>([]);
+  const [monthYearProductBestByMonth, setMonthYearProductBestByMonth] = useState<string>(format(new Date(), 'MM/yyyy'));
+
+  const [listProduct, setListProduct] = useState<ProductModel[]>([]);
   const [productByMonth, setProductByMonth] = useState<ProductByMonthModel[]>([]);
-  const [monthYearProductByMonth, setMonthYearProductByMonth] = useState<string>(format(new Date(), 'MM/yyyy'));
+  const [selectedProductByMonth, setSelectedProductByMonth] = useState<ProductModel>();
 
   const [loading, setLoading] = useState(false);
 
-  // const getAllItems = async () => {
-  //   const { sales, error } = await SaleService.getAll();
-  //   if (error) {
-  //     console.log(`getAllItem:error`, error)
-  //   } else {
-  //     // console.log(`getAllItem:`, sales)
-  //     setSales(sales || []);
-  //   }
-  //   setLoading(false)
-  // };
+  const getAllProduts = useCallback(async (page: number = 1) => {
+    const { products, error } = await ProductService.getAll();
+    if (error) {
+      console.log(`getAllProduts`, error)
+    } else {
+      setListProduct(products || []);
+      let selected = products && products[0]
+      setSelectedProductByMonth(selected);
+      getProductByMonth(selected)
+    }
+    setLoading(false)
+  }, []);
 
   const getSalesByMonth = async () => {
     const { data, error } = await ChartService.getSalesByMonth();
     if (error) {
       console.log(`getSalesByMonth:error`, error)
     } else {
-      // console.log(`getSalesByMonth:`, data)
       setSalesByMonth(data || []);
     }
     setLoading(false)
@@ -52,13 +59,11 @@ const DashboardPage = () => {
   const getSalesByDay = async (date: string) => {
     const [month, year] = date.split("/");
     const formatted = `${year}-${month}`;
-    // console.log(`getSalesByDay:`, formatted)
 
     const { data, error } = await ChartService.getSalesByDay(formatted);
     if (error) {
       console.log(`getSalesByDay:error`, error)
     } else {
-      // console.log(`getSalesByDay:`, data)
       setSalesByDay(data || []);
     }
     setLoading(false)
@@ -67,7 +72,6 @@ const DashboardPage = () => {
   const getSalesByUser = async (date: string) => {
     const [month, year] = date.split("/");
     const formatted = `${year}-${month}`;
-    // console.log(`getSalesByUser:`, formatted)
 
     const { data, error } = await ChartService.getSalesByUser(formatted);
     if (error) {
@@ -81,7 +85,6 @@ const DashboardPage = () => {
   const getSalesByPayment = async (date: string) => {
     const [month, year] = date.split("/");
     const formatted = `${year}-${month}`;
-    // console.log(`getSalesByPayment:`, formatted)
 
     const { data, error } = await ChartService.getSalesByPayment(formatted);
     if (error) {
@@ -92,12 +95,21 @@ const DashboardPage = () => {
     setLoading(false)
   };
 
-  const getProductByMonth = async (date: string) => {
+  const getProductBestSellingByMonth = async (date: string) => {
     const [month, year] = date.split("/");
     const formatted = `${year}-${month}`;
-    // console.log(`getProductByMonth:`, formatted)
 
-    const { data, error } = await ChartService.getProductsByMonth(formatted);
+    const { data, error } = await ChartService.getProductsBestSellingByMonth(formatted);
+    if (error) {
+      console.log(`getProductBestSellingByMonth:error`, error)
+    } else {
+      setProductBestByMonth(data || []);
+    }
+    setLoading(false)
+  };
+
+  const getProductByMonth = async (product: ProductModel) => {
+    const { data, error } = await ChartService.getProductsByMonth(product.id);
     if (error) {
       console.log(`getProductByMonth:error`, error)
     } else {
@@ -121,19 +133,24 @@ const DashboardPage = () => {
     getSalesByPayment(date)
   }, []);
 
-  const handleChangeProductByMonth = useCallback((date: string) => {
-    setMonthYearProductByMonth(date);
-    getProductByMonth(date)
+  const handleChangeProductBestSellingByMonth = useCallback((date: string) => {
+    setMonthYearProductBestByMonth(date);
+    getProductBestSellingByMonth(date)
+  }, []);
+
+  const handleChangeProductByMonth = useCallback((selected: ProductModel) => {
+    setSelectedProductByMonth(selected);
+    getProductByMonth(selected)
   }, []);
 
   useEffect(() => {
-    // console.log(`DashboardPage.useEffect`)
     setLoading(true)
+    getAllProduts()
     getSalesByMonth()
     getSalesByDay(monthYearSalesByDay)
     getSalesByUser(monthYearSalesByUser)
     getSalesByPayment(monthYearSalesByPayment)
-    getProductByMonth(monthYearProductByMonth)
+    getProductBestSellingByMonth(monthYearProductBestByMonth)
   }, []);
 
   return <>
@@ -170,27 +187,29 @@ const DashboardPage = () => {
       <div
         style={{ display: 'flex', gap: '30px' }}
       >
-
         <SalesMonthByPaymentChart
           title='Vendas por tipo de pagamento'
           monthYear={monthYearSalesByPayment}
           items={salesByPayment}
           onChangeMonthYear={handleChangeSalesByPayment}
         />
-
-        {/* <SalesMonthByPaymentChart
-          title='Vendas por tipo de pagamento'
-          monthYear={monthYearSalesByPayment}
-          items={salesByPayment}
-          onChangeMonthYear={handleChangeSalesByPayment}
-          /> */}
       </div>
+
+      <h1 />
+      <ProductBestSellingByMonthChart
+        title='Produtos mais vendidos'
+        monthYear={monthYearProductBestByMonth}
+        items={productBestByMonth.slice(0, 10)}
+        onChangeMonthYear={handleChangeProductBestSellingByMonth}
+      />
+
       <h1 />
       <ProductByMonthChart
-        title='Produtos mais vendidos'
-        monthYear={monthYearProductByMonth}
+        title='Vendas por mês (últimos 12 meses)'
+        selected={selectedProductByMonth}
+        products={listProduct}
         items={productByMonth}
-        onChangeMonthYear={handleChangeProductByMonth}
+        onChangeProduct={handleChangeProductByMonth}
       />
     </div>
 

@@ -1,6 +1,5 @@
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, Legend } from "recharts";
-import { decimalFormat } from "../utils/format-utils";
-import { SalesByDayModel } from "../models/ChartModels";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { ProductBestSellingByMonthModel } from "../models/ChartModels";
 import { Dropdown } from "semantic-ui-react";
 import { format } from "date-fns";
 import React from "react";
@@ -16,19 +15,19 @@ const monthYearOptions = [...Array(15)].map(key => {
   }
 });
 
-interface SalesByMonthChartProps {
+interface ProductBestSellingByMonthChartProps {
   title: string;
   monthYear: string;
-  items: SalesByDayModel[];
+  items: ProductBestSellingByMonthModel[];
   onChangeMonthYear?: (value: string) => void;
 }
 
-const SalesByDayChart = React.memo(({
+const ProductBestSellingByMonthChart = React.memo(({
   title,
   monthYear,
   items,
   onChangeMonthYear = () => { },
-}: SalesByMonthChartProps) => {
+}: ProductBestSellingByMonthChartProps) => {
 
   return (
     <div
@@ -48,27 +47,23 @@ const SalesByDayChart = React.memo(({
       </div>
 
       <ResponsiveContainer>
-        <AreaChart
+        <BarChart
           data={items}
-        >
-          <XAxis dataKey="day" />
+          barCategoryGap="20%">
+          <XAxis dataKey="productName" />
           <YAxis
-            tickFormatter={(value: number) => `${value / 100}k`}
           />
           <Tooltip
             formatter={(value: number, name: string) => {
               const labels: Record<string, string> = {
-                totalBuy: "Compras",
-                totalSale: "Vendas",
-                totalDiff: "Lucro",
+                count: "Quantidade",
               }
-              return [`R$ ${decimalFormat(value / 1000)}k`, labels[name] || name]
+              return [value, labels[name] || name]
             }}
             itemSorter={(item: any) => {
               const order: Record<string, number> = {
-                totalBuy: 3,
+                count: 1,
                 totalSale: 2,
-                totalDiff: 1,
               }
               return order[item.dataKey] ?? 99
             }}
@@ -76,30 +71,20 @@ const SalesByDayChart = React.memo(({
           <Legend
             formatter={(value: string) => {
               const labels: Record<string, string> = {
-                totalBuy: "Compras",
-                totalSale: "Vendas",
-                totalDiff: "Lucro",
+                count: "Quantidade",
               }
               return [labels[value] || value]
             }}
-            itemSorter={(item: any) => {
-              const order: Record<string, number> = {
-                totalBuy: 1,
-                totalSale: 2,
-                totalDiff: 3,
-              }
-              return order[item.dataKey] ?? 99
-            }}
           />
-
-          {/* Empilhando áreas */}
-          <Area type="monotone" dataKey="totalBuy" stackId="1" stroke="#4f0c83" fill="#4f0c83" />
-          <Area type="monotone" dataKey="totalSale" stackId="1" stroke="#870fd1ff" fill="#870fd1ff" />
-          <Area type="monotone" dataKey="totalDiff" stackId="1" stroke="#de62faff" fill="#de62faff" />
-        </AreaChart>
+          <Bar
+            dataKey="count"
+            fill="#388cb9"
+            stackId="a"
+          />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
 });
 
-export { SalesByDayChart };
+export { ProductBestSellingByMonthChart };

@@ -26,8 +26,16 @@ export interface SalesMonthByPaymentModel {
     totalSale: number;
 }
 
-export interface ProductByMonthModel {
+export interface ProductBestSellingByMonthModel {
     productName: string;
     count: number;
     totalSale: number;
+}
+
+export interface ProductByMonthModel {
+    month: string;
+    count: number;
+    totalBuy: number;
+    totalSale: number;
+    totalDiff: number;
 }
