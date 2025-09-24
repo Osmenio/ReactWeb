@@ -1,0 +1,53 @@
+
+.table_text {
+  font-size: 18px !important;
+}
+
+.table_input_align input {
+  text-align: center !important;
+}
+
+.table_total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 20px;
+}
+
+.text_total {
+  font-weight: bold;
+}
+
+.ui.table {
+
+  th {
+    padding: 10px !important;
+
+  }
+
+  td {
+    padding: 10px !important;
+  }
+}
+
+@media print {
+
+  .table_header {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: lightgray !important;
+  }
+
+  .no_print {
+    display: none;
+    // font-size: 18px !important;
+  }
+
+  // .print_show {
+  //   display: show;
+  // }
+
+  // .ui.table thead th {
+  //   padding: 5px !important;
+  // }
+}

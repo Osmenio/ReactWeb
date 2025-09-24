@@ -1,0 +1,263 @@
+import { useCallback, useEffect, useState } from 'react';
+import { InfoModal, LoadingModal, TopPageTitle, UserTable } from '../../component';
+import { Button, Dropdown, Input } from 'semantic-ui-react';
+import "./UserPage.scss"
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
+import { ActionEnum, UserModel, UserStatusEnum } from '../../models';
+import { UserModal } from '../../component/user-modal/UserModal';
+import { AuthService, UserService } from '../../services';
+import { useSessionContext } from '../../providers';
+
+const productStatus = Object.entries(UserStatusEnum).map(([key, value]) => ({
+  key: key,
+  text: value,
+  value: value,
+}));
+
+const UserPage = () => {
+  const { session } = useSessionContext();
+
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<UserStatusEnum>();
+  const [listUser, setListUser] = useState<UserModel[]>([]);
+  const [listUserFilter, setListUserFilter] = useState<UserModel[]>([]);
+
+  const [userModalOpen, setUserModalOpen] = useState(false);
+  const [userModalPositiveBtn, setUserModalPositiveBtn] = useState('');
+  const [userModalNegativeBtn, setUserModalNegativeBtn] = useState('');
+
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [infoModalSubtitle, setInfoModalSubtitle] = useState('');
+  const [infoModalPositiveBtn, setInfoModalPositiveBtn] = useState('');
+  const [infoModalNegativeBtn, setInfoModalNegativeBtn] = useState('');
+
+  const [editUser, setEditUser] = useState<UserModel | undefined>();
+  const [action, setAction] = useState(ActionEnum.None);
+  const [loading, setLoading] = useState(false);
+
+  const handleFilterProducts = useCallback(() => {
+    const list = (search.trim() === "" && !status)
+      ? listUser
+      : listUser.filter(p => {
+        const matchDescription = search.trim() === "" || p.name.toLowerCase().includes(search.toLowerCase());
+        const matchStatus = !status || p.status === status;
+        return matchDescription && matchStatus;
+      });
+    setListUserFilter(list)
+  }, [listUser, search, status]);
+
+  const getAllUsers = useCallback(async () => {
+    const { users, error } = await UserService.getAllUser();
+    if (error) {
+      console.log(`getAllUsers`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao carregar os dados de usuários`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      const list = filterAdm(users.sort((a, b) => a.name.localeCompare(b.name)))
+      setListUser(list || []);
+      setListUserFilter(list || []);
+    }
+    setLoading(false)
+  }, []);
+
+  const saveUser = useCallback(async (user: UserModel) => {
+    const error = await UserService.addUser(user);
+    if (error) {
+      console.log(`saveUser`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao salvar o usuário`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Usuário salvo com sucesso`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalNegativeBtn("")
+      setInfoModalOpen(true)
+    }
+    getAllUsers()
+  }, [getAllUsers]);
+
+  const updateUser = useCallback(async (user: UserModel) => {
+    const { error } = await UserService.updateUser(user);
+    if (error) {
+      console.log(`updateUser:`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao atualizar o usuário`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+    } else {
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Usuário atualizado com sucesso`)
+      setInfoModalPositiveBtn("Ok")
+      setInfoModalNegativeBtn("")
+      setInfoModalOpen(true)
+    }
+    getAllUsers()
+  }, [getAllUsers]);
+
+  const signUp = useCallback(async (user: UserModel) => {
+    const { userId, error } = await AuthService.signUp(`${user.login}@gmail.com`, `123456`);
+    if (error) {
+      console.log(`signUp`, error)
+      setAction(ActionEnum.None)
+      setInfoModalSubtitle(`Falha ao salvar o usuário`)
+      setInfoModalPositiveBtn("")
+      setInfoModalNegativeBtn("Ok")
+      setInfoModalOpen(true)
+      setLoading(false)
+    } else {
+      const newUser: UserModel = {
+        ...user,
+        id: userId ?? "0",
+        status: UserStatusEnum.FirstAccess
+      }
+      saveUser(newUser)
+    }
+  }, [saveUser]);
+
+  const filterAdm = (users: UserModel[]) => {
+    return users.filter(p => p.name !== "Adm")
+  }
+
+  useEffect(() => {
+    handleFilterProducts();
+  }, [search, status, handleFilterProducts]);
+
+  useEffect(() => {
+    setLoading(true)
+    getAllUsers();
+  }, []);
+
+  return <>
+    <TopPageTitle
+      title={"Usuários"}
+      icon={faUsers}
+    />
+
+    <div
+      className="products_header"
+    >
+      <div>
+        <Input
+          className="products_search"
+          placeholder="Buscar ..."
+          onChange={(event) => {
+            setSearch(event.target.value)
+          }}
+        />
+
+        <Dropdown
+          style={{ marginLeft: '10px' }}
+          clearable
+          placeholder="Situação"
+          selection
+          options={productStatus}
+          onChange={(_, data) => {
+            const status = data.value as UserStatusEnum
+            setStatus(status)
+          }}
+        />
+      </div>
+
+      <Button
+        className="products_button"
+        color='blue'
+        onClick={() => {
+          setAction(ActionEnum.Add)
+          setUserModalPositiveBtn("Salvar")
+          setUserModalNegativeBtn("Cancelar")
+          setUserModalOpen(true)
+        }}
+      >
+        Adicionar
+      </Button>
+    </div>
+
+    <div>
+      <UserTable
+        items={listUserFilter}
+        onEdit={(item) => {
+          setAction(ActionEnum.Update)
+          setEditUser(item)
+          setUserModalPositiveBtn("Salvar")
+          setUserModalNegativeBtn("Cancelar")
+          setUserModalOpen(true)
+        }}
+        onChangeStatus={(item) => {
+          setEditUser(item)
+          setAction(ActionEnum.Update)
+          if (item.login === session.user?.login) {
+            setInfoModalSubtitle(`Deseja resetar a senha desse usuário?`)
+            setInfoModalPositiveBtn("Alterar")
+          } else {
+            const sts = item.status === UserStatusEnum.Inactive ? UserStatusEnum.Active : UserStatusEnum.Inactive
+            const msg = sts === UserStatusEnum.Inactive ? "" : "\nIsso resetará a senha."
+            setInfoModalSubtitle(`Deseja alterar o status desse usuário para ${sts}?${msg}`)
+            setInfoModalPositiveBtn("Alterar")
+          }
+          setInfoModalNegativeBtn("Cancelar")
+          setInfoModalOpen(true)
+        }}
+      />
+    </div>
+
+    <UserModal
+      open={userModalOpen}
+      title={action === ActionEnum.Update ? 'Editar usuário' : 'Adicionar usuário'}
+      item={action === ActionEnum.Update ? editUser : undefined}
+      positiveBtnText={userModalPositiveBtn}
+      negativeBtnText={userModalNegativeBtn}
+      onPositiveBtn={(item) => {
+        setLoading(true)
+        setUserModalOpen(false)
+        if (action === ActionEnum.Add) {
+          signUp(item)
+          // saveUser(item)
+        } else {
+          console.log(`UserModal:editUser`, editUser)
+          updateUser(item)
+        }
+      }}
+      onNegativeBtn={() => {
+        setUserModalOpen(false)
+      }}
+    />
+
+    <InfoModal
+      open={infoModalOpen}
+      title='Atenção'
+      subtitle={infoModalSubtitle}
+      positiveBtnText={infoModalPositiveBtn}
+      negativeBtnText={infoModalNegativeBtn}
+      onPositiveBtn={() => {
+        setInfoModalOpen(false)
+        if (action === ActionEnum.Update && editUser) {
+          setLoading(true)
+          let status = UserStatusEnum.FirstAccess
+          if (editUser.login !== session.user?.login) {
+            status = editUser.status === UserStatusEnum.Inactive ? UserStatusEnum.Active : UserStatusEnum.Inactive
+          }
+          updateUser({
+            ...editUser,
+            status: status
+          })
+        }
+      }}
+      onNegativeBtn={() => {
+        setInfoModalOpen(false)
+      }}
+    />
+
+    <LoadingModal
+      show={loading}
+    />
+  </>
+}
+
+export { UserPage }

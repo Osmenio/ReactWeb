@@ -1,24 +1,21 @@
 import { Link } from 'react-router-dom';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faMoon, faSun, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
-
-import logo from '../../logo.svg';
-// import { MenuButton } from '.';
-
-import React from 'react';
 import './TopHeader.scss';
-import { MenuButton } from '..';
-import { faArrowRightFromBracket, faEllipsisVertical } from '@fortawesome/free-solid-svg-icons';
+import { InfoModal, MenuButton } from '..';
+import { faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { useTheme } from '../hooks';
-// import { formatarCNPJ } from '../util';
-// import { getSession } from '../services/session';
+import { capitalizeFirstLetter } from '../../utils/format-utils';
+import { useState } from 'react';
+import logo from '../../logo.svg';
+import { useSessionContext } from '../../providers/SessionContext';
 
 interface TopHeaderProps {
+  isOpen: boolean;
   onMenuToggle: () => void;
 }
 
-const TopHeader = ({ isOpen, onMenuToggle }) => {
+const TopHeader = ({ isOpen, onMenuToggle }: TopHeaderProps) => {
+  const { session, clearSession } = useSessionContext();
+  const [infoModalOpen, setInfoModalOpen] = useState(false);
 
   return (
     <div className="top-container no_print">
@@ -30,29 +27,44 @@ const TopHeader = ({ isOpen, onMenuToggle }) => {
         />
 
         <div className="top-header_left">
-          <Link to="/dashboard" className="top_header_logo">
+          <Link to="/product" className="top_header_logo">
             <img src={logo} alt="Logo" />
           </Link>
-          
-          <Link to="/dashboard" className="top_header_product">
+
+          <Link to="/product" className="top_header_product">
             <div className="top_header_product_title">NOME DA EMPRESA</div>
             <div className="top_header_product_subtitle">PORTAL DE VENDAS</div>
           </Link>
         </div>
 
         <div className='user_no_link'>
-          <strong>Olá, convidado!</strong>
+          <strong>Olá, {capitalizeFirstLetter(session?.user?.name ?? "convidado")}!</strong>
         </div>
 
-        <Link to="/" className='user_no_link'>
-          <FontAwesomeIcon
-            icon={faArrowRightFromBracket}
-            size="2x"
-            style={{ marginLeft: '10px', marginRight: '10px' }}
-            onClick={() => console.log("FontAwesomeIcon")} />
-        </Link>
-
+        <FontAwesomeIcon
+          icon={faArrowRightFromBracket}
+          size="2x"
+          style={{ marginLeft: '10px', marginRight: '10px' }}
+          onClick={() => {
+            console.log("FontAwesomeIcon")
+            setInfoModalOpen(true)
+          }} />
       </header >
+
+      <InfoModal
+        open={infoModalOpen}
+        title="Atenção"
+        subtitle="Tem certeza que deseja sair?"
+        positiveBtnText="Sair"
+        negativeBtnText="Cancelar"
+        onPositiveBtn={() => {
+          setInfoModalOpen(false)
+          clearSession()
+        }}
+        onNegativeBtn={() => {
+          setInfoModalOpen(false)
+        }}
+      />
     </div>
   );
 };

@@ -1,61 +1,67 @@
-.modal_size {
-  max-width: 500px;
-  // width: 80%;
-  margin: 0 auto;
-}
+// .modal_size {
+//   max-width: 500px;
+//   // width: 80%;
+//   margin: 0 auto;
+// }
 
-.modal_subtitle_align {
-  text-align: 'left';
-}
+// .modal_subtitle_align {
+//   text-align: 'left';
+// }
 
-.modal_content {
+.text_input_content {
   // background-color: antiquewhite;
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  margin: 20px 70px;
+  align-items: center;
+  // align-items: flex-start;
+  // justify-content: center;
+  // margin: 20px 70px;
   // margin: 20px auto;
   // width: 80%;
   // text-align: 'center';
 
 }
 
-.modal_logo {
-  // background-color: antiquewhite;
-  display: flex;
-  // align-items: center;
-  // justify-content: center;
-  margin: 0 auto;
-  // width: 100%;
-  // text-align: 'center';
-}
-
-.modal_title {
-  // background-color: antiquewhite;
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-  font-size: 34px;
+.text_content {
   font-weight: bold;
+  margin-right: 20px;
 }
 
-.modal_input {
-  background-color: antiquewhite;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin: 10px auto;
-}
+// .modal_logo {
+//   // background-color: antiquewhite;
+//   display: flex;
+//   // align-items: center;
+//   // justify-content: center;
+//   margin: 0 auto;
+//   // width: 100%;
+//   // text-align: 'center';
+// }
 
-.modal_btn {
-  width: 100%;
-  margin-top: 10px !important;
-}
+// .modal_title {
+//   // background-color: antiquewhite;
+//   display: flex;
+//   justify-content: center;
+//   margin: 20px 0;
+//   font-size: 34px;
+//   font-weight: bold;
+// }
 
-.modal_error {
-  // width: 100%;
-  font-size: 12px;
-  color: red;
-  margin-top: 0;
-  margin-bottom: 10px;
-}
+// .modal_input {
+//   background-color: antiquewhite;
+//   display: flex;
+//   justify-content: center;
+//   width: 100%;
+//   margin: 10px auto;
+// }
+
+// .modal_btn {
+//   width: 100%;
+//   margin-top: 10px !important;
+// }
+
+// .modal_error {
+//   // width: 100%;
+//   font-size: 12px;
+//   color: red;
+//   margin-top: 0;
+//   margin-bottom: 10px;
+// }

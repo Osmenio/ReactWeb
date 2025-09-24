@@ -1,0 +1,32 @@
+.info_modal {
+  max-width: 400px !important;
+  width: 90% !important;
+  margin: 0 auto !important;
+}
+
+.info_modal_title {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.info_modal_subtitle {
+  display: flex;
+  //   justify-content: center;
+  margin: 20px;
+  white-space: pre-wrap;
+}
+
+.info_footer_buttons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.info_button_size {
+  min-width: 100px;
+  margin: 10px 0 !important;
+  // padding: 10px 20px!important;
+}

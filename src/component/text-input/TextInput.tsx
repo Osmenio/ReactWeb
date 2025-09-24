@@ -4,42 +4,34 @@ import './TextInput.scss';
 import { faBars, faTruckFast } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+
+
+interface TextInputProps {
+  title?: string;
+  placehoder?: string;
+}
+
 const TextInput = ({
-  // open,
-  // onClick = () => { },
-}) => {
-
-  // const [isUserNameValid, setUserNameValid] = useState<boolean>(true);
-  // const [isPasswordValid, setPasswordValid] = useState<boolean>(true);
-  // const [userName, setUserName] = useState<String>("");
-  // const [password, setPassword] = useState<String>("");
-
-  // const handleOnClick = useCallback(() => {
-
-  //   const isUserValid = userName.trim() !== "";
-  //   const isPassValid = password.trim() !== "";
-
-  //   console.log(`handleOnClick:${userName}:${password}`)
-  //   console.log(`valide:${isUserValid}:${isPassValid}`)
-
-  //   setUserNameValid(isUserValid)
-  //   setPasswordValid(isPassValid)
-
-  //   if (isUserValid && isPassValid)
-  //     onClick()
-  // }, [userName, password, onClick]);
+  title = "TextInput",
+  placehoder = "TextInput"
+}: TextInputProps) => {
 
   return (
-    <>
+    <div className="text_input_content">
+      <div
+        className="text_content"
+      >
+        {title}
+      </div>
       <Input
-        className="modal_input"
-        placeholder="Usuário *"
+        // className="modal_input"
+        placeholder={placehoder}
         onChange={(event) => {
           // setUserName(event.target.value)
         }}
-      >
-      </Input>
-    </>
+      />
+      {/* </Input> */}
+    </div>
   );
 };
 

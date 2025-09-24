@@ -1,0 +1,37 @@
+.grid_content {
+  margin: 20px 12px;
+}
+
+.grid_row {
+  padding: 0.2rem !important;
+}
+
+.grid_text {
+  font-weight: bold;
+}
+
+
+@media screen {
+  .print {
+    display: none;
+  }
+}
+
+@media print {
+
+  .print {
+    display: block;
+  }
+
+  .no_print {
+    display: none;
+  }
+
+  .input_print input {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
