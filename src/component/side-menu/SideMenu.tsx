@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faBoxesStacked, faCalculator, faChartColumn, faMoneyBill1Wave, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faBoxesStacked, faCalculator, faChartColumn, faMoneyBill1Wave, faRocket, faUsers } from '@fortawesome/free-solid-svg-icons';
 
 import './SideMenu.scss';
 import { UserProfileEnum } from '../../models';
@@ -50,6 +50,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
 
         <nav className="menu-items">
           <ul>
+            {session?.user?.profile == UserProfileEnum.Admin &&
+              <li>
+                <Link to="/mock">
+                  <FontAwesomeIcon icon={faRocket} />
+                  <span>Mock</span>
+                </Link>
+              </li>
+            }
             {session?.user?.profile == UserProfileEnum.Admin &&
               <li>
                 <Link to="/dashboard">

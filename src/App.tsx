@@ -7,6 +7,7 @@ import { BalancePage, DashboardPage, HomePage, ProductsPage, SalesPage, UserPage
 import './semantic-ui-components-customization.scss';
 import 'semantic-ui-css/semantic.min.css';
 import { useSessionContext } from './providers';
+import { MockPage } from './page/MockPage';
 
 const App = () => {
   const navigate = useNavigate();
@@ -38,7 +39,8 @@ const App = () => {
       <div className="app-content">
         <main className="content">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} /> 
+            <Route path="/mock" element={<MockPage />} /> 
             <Route
               path="/dashboard"
               element={session?.user ? <DashboardPage /> : <Navigate to="/" replace />} />

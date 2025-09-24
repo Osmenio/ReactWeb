@@ -91,7 +91,7 @@ const HomePage = () => {
     }
   }, [getUserById]);
 
-  const handleUser = useCallback((login, password) => {
+  const handleUser = useCallback((login: string, password: string) => {
     setLoading(true)
     if (isConfirmPassword) {
       authUpdate(password)

@@ -179,7 +179,6 @@ const ProductsPage = () => {
         >
           Adicionar
         </Button>
-
       }
     </div>
 
