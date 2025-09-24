@@ -50,14 +50,14 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
 
         <nav className="menu-items">
           <ul>
-            {session?.user?.profile == UserProfileEnum.Admin &&
+            {/* {session?.user?.profile == UserProfileEnum.Admin &&
               <li>
                 <Link to="/mock">
                   <FontAwesomeIcon icon={faRocket} />
                   <span>Mock</span>
                 </Link>
               </li>
-            }
+            } */}
             {session?.user?.profile == UserProfileEnum.Admin &&
               <li>
                 <Link to="/dashboard">

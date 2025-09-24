@@ -40,7 +40,7 @@ const App = () => {
         <main className="content">
           <Routes>
             <Route path="/" element={<HomePage />} /> 
-            <Route path="/mock" element={<MockPage />} /> 
+            {/* <Route path="/mock" element={<MockPage />} />  */}
             <Route
               path="/dashboard"
               element={session?.user ? <DashboardPage /> : <Navigate to="/" replace />} />
